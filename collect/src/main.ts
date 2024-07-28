@@ -1,4 +1,5 @@
 import { log, path } from '../deps.ts'
+
 import { HNSource } from './lib/sources/hn.ts'
 import { readOPML } from './lib/sources/podcast.ts'
 import { TildesSource } from './lib/sources/tildes.ts'
@@ -9,8 +10,10 @@ import {
   summarizePrompt,
 } from './lib/openai.ts'
 import { Content, Source, SourceStatus } from './types.ts'
-import { fetchDB, uploadDB } from './lib/minio.ts'
-import { OUTPUT_DIR, SITE_BUILD_HOOK } from './lib/config.ts'
+import { initMinio } from './lib/minio.ts'
+
+const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
+const SITE_BUILD_HOOK = Deno.env.get('SITE_BUILD_HOOK')
 
 const startTime = performance.now()
 
@@ -22,6 +25,8 @@ log.setup({
     }),
   },
 })
+
+const { fetchDB, uploadDB } = initMinio()
 
 Deno.mkdir(OUTPUT_DIR, { recursive: true })
 const dbPath = path.join(OUTPUT_DIR, 'digest.db')

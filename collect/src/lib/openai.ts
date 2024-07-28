@@ -1,5 +1,7 @@
-import { OPENAI_API_KEY } from './config.ts'
 import { OpenAI, PQueue, PRetry, assert, delay, log } from '../../deps.ts'
+import { requireEnv } from './config.ts'
+
+const OPENAI_API_KEY = requireEnv('OPENAI_API_KEY')
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY })
 

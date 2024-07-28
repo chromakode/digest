@@ -1,11 +1,9 @@
 import { Minio, log, path } from '../../deps.ts'
+import { requireEnv } from './config.ts'
 import { fromNodeStream, toNodeStream } from './utils.ts'
 
 export function initMinio() {
-  const endpoint = Deno.env.get('MINIO_ENDPOINT')
-  if (!endpoint) {
-    return { minioClient: null }
-  }
+  const endpoint = requireEnv('MINIO_ENDPOINT')
 
   const minioURL = new URL(endpoint)
   const minioBucket = minioURL.pathname.substring(1)
@@ -19,48 +17,38 @@ export function initMinio() {
     useSSL: minioURL.protocol === 'https:',
   })
 
-  return { minioClient, minioBucket }
-}
+  async function fetchDB(destPath: string) {
+    const dbFile = await Deno.open(destPath, {
+      write: true,
+      create: true,
+    })
 
-const { minioClient, minioBucket } = initMinio()
+    try {
+      await fromNodeStream(
+        await minioClient.getObject(minioBucket, 'digest.db'),
+      ).pipeTo(dbFile.writable)
+    } catch (err) {
+      log.error('error fetching digest.db', err)
+    }
 
-export async function fetchDB(destPath: string) {
-  if (!minioClient) {
-    return
+    log.info('fetched digest.db from minio')
   }
 
-  const dbFile = await Deno.open(destPath, {
-    write: true,
-    create: true,
-  })
+  async function uploadDB(outputDir: string) {
+    const digestData = (
+      await Deno.open(path.join(outputDir, 'digest.db'))
+    ).readable.pipeThrough(new CompressionStream('gzip'))
 
-  try {
-    await fromNodeStream(
-      await minioClient.getObject(minioBucket, 'digest.db'),
-    ).pipeTo(dbFile.writable)
-  } catch (err) {
-    log.error('error fetching digest.db', err)
+    await minioClient.putObject(
+      minioBucket,
+      'digest.db',
+      toNodeStream(digestData),
+      undefined,
+      { 'Content-Type': 'application/x-sqlite3', 'Content-Encoding': 'gzip' },
+    )
+
+    log.info('uploaded digest.db to minio')
   }
 
-  log.info('fetched digest.db from minio')
-}
-
-export async function uploadDB(outputDir: string) {
-  if (!minioClient) {
-    return
-  }
-
-  const digestData = (
-    await Deno.open(path.join(outputDir, 'digest.db'))
-  ).readable.pipeThrough(new CompressionStream('gzip'))
-
-  await minioClient.putObject(
-    minioBucket,
-    'digest.db',
-    toNodeStream(digestData),
-    undefined,
-    { 'Content-Type': 'application/x-sqlite3', 'Content-Encoding': 'gzip' },
-  )
-
-  log.info('uploaded digest.db to minio')
+  return { fetchDB, uploadDB }
 }

@@ -1,5 +1,8 @@
-import { RUNPOD_API_KEY, RUNPOD_WHISPER_ENDPOINT } from './config.ts'
+import { requireEnv } from './config.ts'
 import { PQueue, RunpodSDK, assert, log } from '../../deps.ts'
+
+const RUNPOD_API_KEY = requireEnv('RUNPOD_API_KEY')
+const RUNPOD_WHISPER_ENDPOINT = requireEnv('RUNPOD_WHISPER_ENDPOINT')
 
 const runpod = RunpodSDK(RUNPOD_API_KEY)
 const endpoint = runpod.endpoint(RUNPOD_WHISPER_ENDPOINT)

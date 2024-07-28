@@ -111,9 +111,16 @@ export class Store {
     )
   }
 
-  getContentWithChildSummaries(): ContentWithChildren[] {
+  getContentWithChildSummaries({
+    since,
+  }: {
+    since?: dateFns.Duration
+  } = {}): ContentWithChildren[] {
     const rows = this.db.queryEntries<ContentWithSummary>(
-      'SELECT contentId as id, sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, (SELECT contentSummary FROM summary WHERE contentId = content.contentId ORDER BY summary.timestamp DESC LIMIT 1) contentSummary, shortName as sourceShortName FROM content LEFT JOIN source using (sourceId) WHERE parentContentId IS NULL ORDER BY content.timestamp DESC',
+      'SELECT contentId as id, sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, (SELECT contentSummary FROM summary WHERE contentId = content.contentId ORDER BY summary.timestamp DESC LIMIT 1) contentSummary, shortName as sourceShortName FROM content LEFT JOIN source using (sourceId) WHERE unixepoch(timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
+      {
+        threshold: since ? dateFns.sub(Date.now(), since) : 0,
+      },
     )
     return rows.map((content) => {
       const childContent = this.db.queryEntries<ContentWithSummary>(

@@ -10,9 +10,10 @@ import { parseISO } from "date-fns";
 
 const db = await AsyncDatabase.open(import.meta.env.DB_PATH ?? "./digest.db");
 const rows = await db.all<Content>(`
-  SELECT contentId as id, sourceId, url, sourceURL, title, contentTimestamp, (SELECT contentSummary FROM summary WHERE contentId = content.contentId ORDER BY summary.timestamp DESC LIMIT 1) contentSummary, shortName as sourceShortName
+  SELECT contentId as id, sourceId, url, sourceURL, title, contentTimestamp, contentSummary, shortName as sourceShortName
   FROM content
   LEFT JOIN source USING (sourceId)
+  LEFT JOIN summary USING (contentId)
   WHERE content.timestamp > datetime('now', '-1 day') AND parentContentId IS NULL
   ORDER BY content.timestamp DESC
 `);
@@ -21,9 +22,10 @@ const rowsWithChildren = await Promise.all(
   rows.map(async (row) => {
     const childContent = await db.all<Content>(
       `
-      SELECT contentId as id, sourceId, url, sourceURL, title, contentTimestamp, (SELECT contentSummary FROM summary WHERE contentId = content.contentId ORDER BY summary.timestamp DESC LIMIT 1) contentSummary, shortName as sourceShortName
+      SELECT contentId as id, sourceId, url, sourceURL, title, contentTimestamp, contentSummary, shortName as sourceShortName
       FROM content
       LEFT JOIN source USING (sourceId)
+      LEFT JOIN summary USING (contentId)
       WHERE parentContentId = $parentContentId
     `,
       { $parentContentId: row.id }

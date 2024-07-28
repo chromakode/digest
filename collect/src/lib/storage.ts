@@ -53,7 +53,7 @@ export class Store {
       CREATE TABLE IF NOT EXISTS summary (
         summaryId INTEGER PRIMARY KEY AUTOINCREMENT,
         timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-        contentId INTEGER NOT NULL,
+        contentId INTEGER NOT NULL UNIQUE,
         contentSummary TEXT NOT NULL,
         FOREIGN KEY (contentId) REFERENCES content (contentId)
       )
@@ -98,7 +98,7 @@ export class Store {
       `
       INSERT INTO content (sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, parentContentId)
       VALUES (:sourceId, :url, :hash, :title, :author, :contentTimestamp, :content, :sourceURL, :parentContentId)
-      ON CONFLICT(url) DO UPDATE SET title=:title, content=:content, timestamp=CURRENT_TIMESTAMP
+      ON CONFLICT(url) DO UPDATE SET title=:title, content=:content
       RETURNING contentId as id, url, hash, title, author, contentTimestamp, content, sourceURL, parentContentId
       `,
       { sourceId, ...data },
@@ -117,14 +117,14 @@ export class Store {
     since?: dateFns.Duration
   } = {}): ContentWithChildren[] {
     const rows = this.db.queryEntries<ContentWithSummary>(
-      'SELECT contentId as id, sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, (SELECT contentSummary FROM summary WHERE contentId = content.contentId ORDER BY summary.timestamp DESC LIMIT 1) contentSummary, shortName as sourceShortName FROM content LEFT JOIN source using (sourceId) WHERE unixepoch(timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
+      'SELECT contentId as id, sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary USING (contentId) WHERE unixepoch(content.timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
       {
         threshold: since ? dateFns.sub(Date.now(), since) : 0,
       },
     )
     return rows.map((content) => {
       const childContent = this.db.queryEntries<ContentWithSummary>(
-        'SELECT contentId as id, url, title, contentTimestamp, sourceId, sourceURL, (SELECT contentSummary FROM summary WHERE contentId = content.contentId ORDER BY summary.timestamp DESC LIMIT 1) contentSummary, shortName as sourceShortName FROM content LEFT JOIN source using (sourceId) WHERE parentContentId = :parentContentId',
+        'SELECT contentId as id, url, title, contentTimestamp, sourceId, sourceURL,contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary using (contentId) WHERE parentContentId = :parentContentId',
         { parentContentId: content.id },
       )
       return { ...content, childContent }
@@ -161,7 +161,7 @@ export class Store {
     return results.length > 0 && results[0][0] > 0
   }
 
-  isContentFresh({ url, hash, delta = { hours: 6 } }: ContentFreshQuery) {
+  isContentFresh({ url, hash, delta = { hours: 24 } }: ContentFreshQuery) {
     const params: Record<string, string> = {
       threshold: dateFns.sub(Date.now(), delta).toISOString(),
     }
@@ -199,7 +199,7 @@ export class Store {
     { contentSummary }: { contentSummary: string },
   ) {
     this.db.query(
-      'INSERT INTO summary (contentId, contentSummary) VALUES (:contentId, :contentSummary)',
+      'INSERT INTO summary (contentId, contentSummary) VALUES (:contentId, :contentSummary) ON CONFLICT(contentId) DO UPDATE SET contentSummary=:contentSummary',
       { contentId, contentSummary },
     )
   }

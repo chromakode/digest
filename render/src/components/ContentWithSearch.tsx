@@ -1,56 +1,56 @@
-import MiniSearch, { type SearchResult } from "minisearch";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { miniSearchConfig } from "@shared/searchConfig";
-import type { ChangeEvent } from "react";
-import { throttle } from "lodash-es";
-import Article, { type ContentWithChildren } from "./Article";
+import MiniSearch, { type SearchResult } from 'minisearch'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { miniSearchConfig } from '@shared/searchConfig'
+import type { ChangeEvent } from 'react'
+import { throttle } from 'lodash-es'
+import Article, { type ContentWithChildren } from './Article'
 
 export default function ContentWithSearch({
   rows,
 }: {
-  rows: ContentWithChildren[];
+  rows: ContentWithChildren[]
 }) {
-  const [miniSearch, setMiniSearch] = useState<MiniSearch | null>(null);
-  const [results, setResults] = useState<SearchResult[] | null>(null);
+  const [miniSearch, setMiniSearch] = useState<MiniSearch | null>(null)
+  const [results, setResults] = useState<SearchResult[] | null>(null)
 
   useEffect(() => {
     async function loadSearch() {
-      const resp = await fetch("/digest.index.json");
-      const data = await resp.json();
-      const miniSearch = MiniSearch.loadJS(data, miniSearchConfig);
-      setMiniSearch(miniSearch);
+      const resp = await fetch('/digest.index.json')
+      const data = await resp.json()
+      const miniSearch = MiniSearch.loadJS(data, miniSearchConfig)
+      setMiniSearch(miniSearch)
     }
-    loadSearch();
-  }, []);
+    loadSearch()
+  }, [])
 
   const updateSearch = useCallback(
     (query: string) => {
-      setResults(miniSearch?.search(query, { fuzzy: true }) ?? []);
+      setResults(miniSearch?.search(query, { fuzzy: true }) ?? [])
     },
-    [miniSearch]
-  );
+    [miniSearch],
+  )
 
   const throttleUpdateSearch = useMemo(
     () => throttle(updateSearch, 100),
-    [updateSearch]
-  );
+    [updateSearch],
+  )
 
   const handleChangeQuery = useCallback(
     (ev: ChangeEvent<HTMLInputElement>) => {
-      const query = ev.currentTarget.value;
-      if (query === "") {
-        setResults(null);
-        return;
+      const query = ev.currentTarget.value
+      if (query === '') {
+        setResults(null)
+        return
       }
       if (!miniSearch) {
-        return;
+        return
       }
-      throttleUpdateSearch(query);
+      throttleUpdateSearch(query)
     },
-    [throttleUpdateSearch]
-  );
+    [throttleUpdateSearch],
+  )
 
-  const displayRows = results != null ? results.slice(0, 15) : rows;
+  const displayRows = results != null ? results.slice(0, 15) : rows
 
   return (
     <>
@@ -85,8 +85,8 @@ export default function ContentWithSearch({
             sourceURL={sourceURL}
             childContent={childContent}
           />
-        )
+        ),
       )}
     </>
-  );
+  )
 }

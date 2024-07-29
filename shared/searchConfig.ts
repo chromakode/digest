@@ -6,6 +6,7 @@ export const miniSearchConfig = {
     'contentSummary',
     'contentId',
     'url',
+    'sourceId',
     'sourceURL',
     'sourceShortName',
     'childContent',

@@ -105,7 +105,7 @@ export class Store {
     )[0]
   }
 
-  getContentWithoutSummary(): Content[] {
+  getContentMissingSummary(): Content[] {
     return this.db.queryEntries<Content>(
       'SELECT contentId as id, url, hash, title, author, contentTimestamp, content, sourceURL, parentContentId FROM content LEFT JOIN summary USING (contentId) WHERE contentSummary IS NULL',
     )

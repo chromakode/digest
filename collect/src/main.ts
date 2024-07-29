@@ -102,7 +102,7 @@ async function fetchAll() {
 }
 
 async function summarizeAllMissing() {
-  const summarizePromises = store.getContentWithoutSummary().map(fetchSummary)
+  const summarizePromises = store.getContentMissingSummary().map(fetchSummary)
   await Promise.allSettled(summarizePromises)
 }
 

@@ -126,6 +126,12 @@ const lastUpdate = await db.get<{ timestamp: string }>(
           gap: 0.5rem;
         }
 
+        .domain {
+          font-size: 0.85rem;
+          font-weight: normal;
+          margin-left: 1em;
+        }
+
         time {
           font-size: 0.85em;
           opacity: 0.4;
@@ -138,7 +144,7 @@ const lastUpdate = await db.get<{ timestamp: string }>(
         }
 
         .source,
-        a {
+        h2 {
           font-stretch: 85%;
           overflow: hidden;
           text-overflow: ellipsis;

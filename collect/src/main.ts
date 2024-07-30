@@ -11,6 +11,7 @@ import {
 } from './lib/openai.ts'
 import { Content, Source, SourceStatus } from './types.ts'
 import { initMinio } from './lib/minio.ts'
+import { DigestSource } from './lib/sources/digest.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 const SITE_BUILD_HOOK = Deno.env.get('SITE_BUILD_HOOK')
@@ -115,6 +116,7 @@ async function triggerSiteBuild() {
 
 await fetchAll()
 await summarizeAllMissing()
+await fetchSource(new DigestSource(store.getContentWithChildSummaries()))
 
 const durationMs = performance.now() - startTime
 store.addSourceResult('system', { status: SourceStatus.SUCCESS, durationMs })

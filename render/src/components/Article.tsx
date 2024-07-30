@@ -51,13 +51,32 @@ function Info({
 }
 
 export default function Article(content: ContentWithChildren) {
-  const { id, title, contentSummary, url: urlStr, childContent } = content
+  const {
+    id,
+    title,
+    sourceId,
+    contentSummary,
+    url: urlStr,
+    childContent,
+  } = content
 
   const url = new URL(urlStr)
   const showDomain = ![content, ...childContent].some(
     (c) => c.sourceId.startsWith('podcast:') || c.sourceURL === urlStr,
   )
   const domain = url.host.replace(/^www\./, '')
+
+  if (sourceId === 'digest') {
+    return (
+      <article id={`content-${id}`}>
+        <div className="content">
+          <Markdown className="summary" rehypePlugins={[rehypeSanitize]}>
+            {contentSummary}
+          </Markdown>
+        </div>
+      </article>
+    )
+  }
 
   return (
     <article id={`content-${id}`}>

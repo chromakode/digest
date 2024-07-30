@@ -13,6 +13,7 @@ export interface ContentData {
   hash?: string
   title: string
   author?: string
+  timestamp?: string
   contentTimestamp?: string
   content: string
   sourceURL?: string
@@ -57,6 +58,10 @@ export interface ContentFreshQuery {
 export interface SourceStore {
   log(text: string): void
   addContent(data: ContentData): Promise<Content>
+  addSummary(
+    contentId: ContentId,
+    { contentSummary }: { contentSummary: string },
+  ): void
   updateSource(data: SourceData): void
   isContentFresh(opts: ContentFreshQuery): boolean
 }

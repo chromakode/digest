@@ -98,8 +98,8 @@ export class Store {
       `
       INSERT INTO content (sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, parentContentId)
       VALUES (:sourceId, :url, :hash, :title, :author, :contentTimestamp, :content, :sourceURL, :parentContentId)
-      ON CONFLICT(url) DO UPDATE SET title=:title, content=:content
-      RETURNING contentId as id, url, hash, title, author, contentTimestamp, content, sourceURL, parentContentId
+      ON CONFLICT(url) DO UPDATE SET title=:title, content=:content, hash=:hash, timestamp=CURRENT_TIMESTAMP
+      RETURNING contentId as id, url, hash, title, author, timestamp, contentTimestamp, content, sourceURL, parentContentId
       `,
       { sourceId, ...data },
     )[0]
@@ -107,7 +107,7 @@ export class Store {
 
   getContentMissingSummary(): Content[] {
     return this.db.queryEntries<Content>(
-      'SELECT contentId as id, url, hash, title, author, contentTimestamp, content, sourceURL, parentContentId FROM content LEFT JOIN summary USING (contentId) WHERE contentSummary IS NULL',
+      'SELECT contentId as id, url, hash, title, author, contentTimestamp, content, sourceId, sourceURL, parentContentId FROM content LEFT JOIN summary USING (contentId) WHERE contentSummary IS NULL',
     )
   }
 
@@ -117,14 +117,14 @@ export class Store {
     since?: dateFns.Duration
   } = {}): ContentWithChildren[] {
     const rows = this.db.queryEntries<ContentWithSummary>(
-      'SELECT contentId as id, sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary USING (contentId) WHERE unixepoch(content.timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
+      'SELECT contentId as id, sourceId, url, hash, title, author, content.timestamp as timestamp, contentTimestamp, content, sourceURL, contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary USING (contentId) WHERE unixepoch(content.timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
       {
         threshold: since ? dateFns.sub(Date.now(), since) : 0,
       },
     )
     return rows.map((content) => {
       const childContent = this.db.queryEntries<ContentWithSummary>(
-        'SELECT contentId as id, url, title, contentTimestamp, sourceId, sourceURL,contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary using (contentId) WHERE parentContentId = :parentContentId',
+        'SELECT contentId as id, url, title, content.timestamp as timestamp, contentTimestamp, sourceId, sourceURL,contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary using (contentId) WHERE parentContentId = :parentContentId',
         { parentContentId: content.id },
       )
       return { ...content, childContent }
@@ -222,6 +222,7 @@ export class Store {
         await onContent(content)
         return content
       },
+      addSummary: this.addSummary.bind(this),
       updateSource: (data: SourceData) => this.updateSource(sourceId, data),
       isContentFresh: this.isContentFresh.bind(this),
     }

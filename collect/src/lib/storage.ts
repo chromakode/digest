@@ -161,7 +161,7 @@ export class Store {
     return results.length > 0 && results[0][0] > 0
   }
 
-  isContentFresh({ url, hash, delta = { hours: 24 } }: ContentFreshQuery) {
+  isContentFresh({ url, hash, delta = { days: 3 } }: ContentFreshQuery) {
     const params: Record<string, string> = {
       threshold: dateFns.sub(Date.now(), delta).toISOString(),
     }

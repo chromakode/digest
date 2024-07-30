@@ -51,14 +51,7 @@ function Info({
 }
 
 export default function Article(content: ContentWithChildren) {
-  const {
-    id,
-    title,
-    contentSummary,
-    url: urlStr,
-    sourceId,
-    childContent,
-  } = content
+  const { id, title, contentSummary, url: urlStr, childContent } = content
 
   const url = new URL(urlStr)
   const showDomain = ![content, ...childContent].some(

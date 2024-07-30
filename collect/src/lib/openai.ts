@@ -19,7 +19,6 @@ Article title: ${title}
 Article content:
 
 ${content}
-
 `
 
 export const summarizeChildPrompt = (

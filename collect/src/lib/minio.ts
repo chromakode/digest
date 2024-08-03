@@ -35,17 +35,23 @@ export function initMinio() {
   }
 
   async function uploadDB(outputDir: string) {
-    const digestData = (
-      await Deno.open(path.join(outputDir, 'digest.db'))
-    ).readable.pipeThrough(new CompressionStream('gzip'))
+    log.info('uploading digest.db to minio')
 
-    await minioClient.putObject(
-      minioBucket,
-      'digest.db',
-      toNodeStream(digestData),
-      undefined,
-      { 'Content-Type': 'application/x-sqlite3', 'Content-Encoding': 'gzip' },
-    )
+    const gzPath = path.join(outputDir, 'digest.db.gz')
+    const gzFile = await Deno.open(gzPath, {
+      write: true,
+      create: true,
+    })
+
+    const inFile = await Deno.open(path.join(outputDir, 'digest.db'))
+    await inFile.readable
+      .pipeThrough(new CompressionStream('gzip'))
+      .pipeTo(gzFile.writable)
+
+    await minioClient.fPutObject(minioBucket, 'digest.db', gzPath, {
+      'Content-Type': 'application/x-sqlite3',
+      'Content-Encoding': 'gzip',
+    })
 
     log.info('uploaded digest.db to minio')
   }

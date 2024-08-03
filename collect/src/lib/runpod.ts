@@ -8,9 +8,7 @@ const runpod = RunpodSDK(RUNPOD_API_KEY)
 const endpoint = runpod.endpoint(RUNPOD_WHISPER_ENDPOINT)
 
 const transcribeQueue = new PQueue({
-  concurrency: 3,
-  interval: 10000,
-  intervalCap: 2,
+  concurrency: 7,
 })
 
 export async function transcribeAudio(url: string): Promise<string> {

@@ -49,10 +49,10 @@ export class DigestSource implements Source {
       ({ timestamp }) => new Date(timestamp + 'Z').getTime() > digestStart,
     )
     const contentSummaries = digestContent
-      .map(
-        ({ title, contentSummary, url }) =>
-          `${url} ${title}: ${contentSummary}`,
-      )
+      .map(({ title, contentSummary, url, childContent }) => {
+        const comments = childContent.map((c) => c.contentSummary).join('\n')
+        return `${url} ${title}: ${contentSummary}\n${comments} `
+      })
       .join('\n\n')
     const prompt = summarizeDigestPrompt(contentSummaries)
 

@@ -9,6 +9,7 @@ import {
 } from '../../types.ts'
 import { tryDate } from '../utils.ts'
 import { getFetchQueue } from '../web.ts'
+import { fetchWithUA } from '../fetch.ts'
 
 const rssParser = new RSSParser()
 
@@ -31,7 +32,7 @@ export class PodcastSource implements Source {
     const { slug, feedURL } = this
     const resp = await getFetchQueue(feedURL).add(() => {
       log.info('feed fetch', { slug, feedURL })
-      return fetch(feedURL)
+      return fetchWithUA(feedURL)
     })
     assert(resp != null)
     const rssText = await resp.text()

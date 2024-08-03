@@ -1,5 +1,6 @@
 import { DOMParser, PQueue, assert, log, parseMediaType } from '../../deps.ts'
 import { ContentData } from '../types.ts'
+import { fetchWithUA } from "./fetch.ts";
 
 const defaultQueueOptions = {
   concurrency: 1,
@@ -23,7 +24,7 @@ export function getFetchQueue(url: string): PQueue {
 export async function fetchDocument(url: string) {
   const resp = await getFetchQueue(url).add(() => {
     log.info(`web fetch ${url}`, { url })
-    return fetch(url)
+    return fetchWithUA(url)
   })
 
   assert(resp != null)

@@ -13,6 +13,7 @@ import { Content, Source, SourceStatus } from './types.ts'
 import { initMinio } from './lib/minio.ts'
 import { DigestSource } from './lib/sources/digest.ts'
 import { PQueue } from '../deps.ts'
+import { fetchWithUA } from './lib/fetch.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 const SITE_BUILD_HOOK = Deno.env.get('SITE_BUILD_HOOK')
@@ -127,7 +128,7 @@ async function summarizeAllMissing() {
 
 async function triggerSiteBuild() {
   if (SITE_BUILD_HOOK) {
-    await fetch(SITE_BUILD_HOOK, { method: 'POST' })
+    await fetchWithUA(SITE_BUILD_HOOK, { method: 'POST' })
     log.info('triggered site build')
   }
 }

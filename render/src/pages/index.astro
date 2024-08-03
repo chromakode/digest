@@ -6,7 +6,8 @@ import { AsyncDatabase } from 'promised-sqlite3'
 import ContentWithSearch from '../components/ContentWithSearch'
 import Timestamp from '../components/Timestamp'
 import type { Content } from '../components/Article'
-import { parseISO } from 'date-fns'
+import { isAfter, parseISO, subHours } from 'date-fns'
+import { partition } from 'lodash-es'
 
 const db = await AsyncDatabase.open(import.meta.env.DB_PATH ?? './digest.db')
 const rows = await db.all<Content>(`
@@ -32,6 +33,15 @@ const rowsWithChildren = await Promise.all(
     )
     return { ...row, childContent }
   }),
+)
+
+const now = Date.now()
+const newPodcastThreshold = subHours(now, 12)
+
+const newPodcasts = rowsWithChildren.filter(
+  ({ sourceId, contentTimestamp }) =>
+    sourceId.startsWith('podcast:') &&
+    isAfter(parseISO(contentTimestamp + 'Z'), newPodcastThreshold),
 )
 
 const lastUpdate = await db.get<{ timestamp: string }>(
@@ -60,7 +70,11 @@ const lastUpdate = await db.get<{ timestamp: string }>(
       </span>
     </header>
     <main>
-      <ContentWithSearch client:load rows={rowsWithChildren} />
+      <ContentWithSearch
+        client:load
+        rows={rowsWithChildren}
+        podcasts={newPodcasts}
+      />
     </main>
   </body>
 
@@ -137,17 +151,23 @@ const lastUpdate = await db.get<{ timestamp: string }>(
           opacity: 0.4;
         }
 
-        .source {
+        .source,
+        .podcast-name {
           font-weight: 600;
           color: var(--color-text);
           opacity: 0.6;
         }
 
         .source,
-        h2 {
+        h2,
+        .podcast-name {
           font-stretch: 85%;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+
+        .podcast {
+          margin: 0.25em 0;
         }
 
         a {

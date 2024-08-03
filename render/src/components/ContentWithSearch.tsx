@@ -4,11 +4,15 @@ import { miniSearchConfig } from '@shared/searchConfig'
 import type { ChangeEvent } from 'react'
 import { throttle } from 'lodash-es'
 import Article, { type ContentWithChildren } from './Article'
+import Timestamp from './Timestamp'
+import { parseISO } from 'date-fns'
 
 export default function ContentWithSearch({
   rows,
+  podcasts,
 }: {
   rows: ContentWithChildren[]
+  podcasts: ContentWithChildren[]
 }) {
   const [miniSearch, setMiniSearch] = useState<MiniSearch | null>(null)
   const [results, setResults] = useState<SearchResult[] | null>(null)
@@ -52,6 +56,8 @@ export default function ContentWithSearch({
 
   const displayRows = results != null ? results.slice(0, 15) : rows
 
+  const latestDigest = rows.find(({ sourceId }) => sourceId === 'digest')
+
   return (
     <>
       <div className="search">
@@ -61,32 +67,59 @@ export default function ContentWithSearch({
           placeholder="search posts"
         />
       </div>
-      {displayRows.map(
-        ({
-          id,
-          title,
-          contentTimestamp,
-          contentSummary,
-          url,
-          sourceId,
-          sourceShortName,
-          sourceURL,
-          childContent,
-        }) => (
-          <Article
-            key={id}
-            id={id}
-            title={title}
-            contentTimestamp={contentTimestamp}
-            contentSummary={contentSummary}
-            url={url}
-            sourceId={sourceId}
-            sourceShortName={sourceShortName}
-            sourceURL={sourceURL}
-            childContent={childContent}
-          />
-        ),
+      {!results && (
+        <>
+          {latestDigest && <Article {...latestDigest} />}
+          <article className="new-podcasts">
+            {podcasts.map(
+              ({
+                id,
+                contentSummary,
+                url,
+                sourceShortName,
+                contentTimestamp,
+              }) => (
+                <p key={id} className="podcast">
+                  <a href={url} className="podcast-name">
+                    {sourceShortName}
+                  </a>
+                  : {contentSummary.split('\n')[0]}{' '}
+                  <Timestamp dateTime={parseISO(contentTimestamp)} />
+                </p>
+              ),
+            )}
+          </article>
+        </>
       )}
+
+      {displayRows
+        .filter((r) => r !== latestDigest)
+        .map(
+          ({
+            id,
+            title,
+            contentTimestamp,
+            contentSummary,
+            url,
+            sourceId,
+            sourceShortName,
+            sourceURL,
+            childContent,
+          }) => (
+            <Article
+              key={id}
+              id={id}
+              title={title}
+              contentTimestamp={contentTimestamp}
+              contentSummary={contentSummary}
+              url={url}
+              sourceId={sourceId}
+              sourceShortName={sourceShortName}
+              sourceURL={sourceURL}
+              childContent={childContent}
+            />
+          ),
+        )}
     </>
   )
 }

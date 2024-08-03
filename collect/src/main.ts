@@ -12,6 +12,7 @@ import {
 import { Content, Source, SourceStatus } from './types.ts'
 import { initMinio } from './lib/minio.ts'
 import { DigestSource } from './lib/sources/digest.ts'
+import { PQueue } from '../deps.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 const SITE_BUILD_HOOK = Deno.env.get('SITE_BUILD_HOOK')
@@ -33,6 +34,22 @@ Deno.mkdir(OUTPUT_DIR, { recursive: true })
 const dbPath = path.join(OUTPUT_DIR, 'digest.db')
 await fetchDB(dbPath)
 const store = new Store(dbPath)
+
+const writeQueue = new PQueue({
+  concurrency: 1,
+  interval: 10000,
+  intervalCap: 1,
+})
+
+function queueWrite() {
+  if (writeQueue.pending > 0) {
+    return
+  }
+
+  writeQueue.add(async () => {
+    await uploadDB(OUTPUT_DIR)
+  })
+}
 
 async function fetchSummary(content: Content) {
   if (store.getSummary(content.id)) {
@@ -88,6 +105,7 @@ async function fetchSource(source: Source) {
   const durationMs = performance.now() - startTime
 
   store.addSourceResult(source.id, { status, durationMs })
+  queueWrite()
 }
 
 async function fetchAll() {
@@ -121,8 +139,10 @@ await fetchSource(new DigestSource(store.getContentWithChildSummaries()))
 const durationMs = performance.now() - startTime
 store.addSourceResult('system', { status: SourceStatus.SUCCESS, durationMs })
 
+writeQueue.pause()
 store.close()
 await uploadDB(OUTPUT_DIR)
+
 await triggerSiteBuild()
 
 log.info(`finished in ${durationMs}ms`)

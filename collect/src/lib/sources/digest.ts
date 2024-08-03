@@ -13,6 +13,12 @@ const interval = 4 * 60 * 60 * 1000
 const summarizeDigestPrompt = (summaries: string) => `
 Given the following list of news items, summarize most important news into a single short paragraph. Include specific titles and link them to the url using markdown syntax, without bold or italic. Use active tense.
 
+For example:
+
+Key news stories include the closure of [Game Informer](https://www.ign.com/articles/game-informer-to-shut-down-after-33-years) after 33 years, impacting the gaming journalism landscape amid financial struggles at GameStop. In legal news, the [US Fifth Circuit Court](https://www.nytimes.com/2024/08/02/us/texas-voting-rights-minorities.html?unlocked_article_code=1._00.ewqZ.lANUItcW1l_7) narrows the scope of the Voting Rights Act, affecting minority voting rights by ruling that minorities cannot jointly claim voting dilution. Additionally, a [Mercedes EV fire](https://koreajoongangdaily.joins.com/news/2024-08-02/business/industry/Mercedes-EV-fire-causes-power-outage-hospitalizations-with-140-cars-damaged/2104634) in Incheon results in significant damage, leading to power outages and hospitalizations. Finally, secret negotiations manage the release of journalist [Evan Gershkovich](https://www.wsj.com/world/europe/evan-gershkovich-prisoner-exchange-ccb39ad3) from Russian custody, underscoring ongoing geopolitical tensions.
+
+News items:
+
 ${summaries}
 `
 

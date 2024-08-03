@@ -1,4 +1,4 @@
-import { encodeBase64 } from '../../../deps.ts'
+import { dateFns, encodeBase64 } from '../../../deps.ts'
 import {
   ContentWithChildren,
   Source,
@@ -28,7 +28,14 @@ export class DigestSource implements Source {
   async fetch(store: SourceStore) {
     const now = Date.now()
     const digestIndex = Math.ceil(now / interval)
-    const digestStart = (digestIndex - 1) * interval
+
+    const digestBase = (digestIndex - 1) * interval
+
+    // The latest digest should always cover at least a half interval of recent content.
+    const digestStart = Math.min(
+      digestBase,
+      dateFns.subMilliseconds(now, interval / 2).getTime(),
+    )
 
     const digestURL = `digest://${digestIndex}`
 

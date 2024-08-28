@@ -4,6 +4,7 @@ import { relativeURL, tryDate } from '../utils.ts'
 import { fetchDocument, fetchPage } from '../web.ts'
 
 const BASE_URL = 'https://news.ycombinator.com'
+const MIN_COMMENT_COUNT = 3
 
 export class HNSource implements Source {
   id = 'hn' as SourceId
@@ -38,6 +39,9 @@ export class HNSource implements Source {
       const commentsEl = el.nextElementSibling?.querySelector(
         '.subline a:last-child',
       )
+      const commentCountText = commentsEl?.textContent.match(/^\d+/)?.[0]
+      const commentCount =
+        commentCountText != null ? parseInt(commentCountText) : 0
       const sourceURL = relativeURL(commentsEl?.getAttribute('href'), BASE_URL)
 
       const fetchContent = async () => {
@@ -48,7 +52,11 @@ export class HNSource implements Source {
           contentTimestamp,
           sourceURL,
         })
-        if (sourceURL && sourceURL !== url) {
+        if (
+          commentCount > MIN_COMMENT_COUNT &&
+          sourceURL != null &&
+          sourceURL != url
+        ) {
           const commentsPage = await fetchPage(sourceURL)
           await store.addContent({
             ...commentsPage,

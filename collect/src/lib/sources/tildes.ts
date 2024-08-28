@@ -4,6 +4,7 @@ import { relativeURL, tryDate } from '../utils.ts'
 import { fetchDocument, fetchPage } from '../web.ts'
 
 const BASE_URL = 'https://tildes.net'
+const MIN_COMMENT_COUNT = 3
 
 function sanitizeTildesURL(urlStr: string | null | undefined) {
   if (!urlStr) {
@@ -52,6 +53,9 @@ export class TildesSource implements Source {
       const contentTimestamp = tryDate(timeEl?.getAttribute('datetime'))
 
       const commentsEl = el.querySelector('.topic-info-comments a')
+      const commentCountText = commentsEl?.textContent.match(/^\d+/)?.[0]
+      const commentCount =
+        commentCountText != null ? parseInt(commentCountText) : 0
       const sourceURL = sanitizeTildesURL(
         relativeURL(commentsEl?.getAttribute('href'), BASE_URL),
       )
@@ -64,7 +68,11 @@ export class TildesSource implements Source {
           contentTimestamp,
           sourceURL,
         })
-        if (sourceURL && sourceURL !== url) {
+        if (
+          commentCount > MIN_COMMENT_COUNT &&
+          sourceURL != null &&
+          sourceURL !== url
+        ) {
           const commentsPage = await fetchPage(sourceURL)
           await store.addContent({
             ...commentsPage,

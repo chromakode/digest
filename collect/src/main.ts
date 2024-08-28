@@ -48,7 +48,7 @@ function queueWrite() {
   }
 
   writeQueue.add(async () => {
-    await uploadDB(OUTPUT_DIR)
+    await uploadDB(store, OUTPUT_DIR)
   })
 }
 
@@ -141,8 +141,8 @@ const durationMs = performance.now() - startTime
 store.addSourceResult('system', { status: SourceStatus.SUCCESS, durationMs })
 
 writeQueue.pause()
+await uploadDB(store, OUTPUT_DIR)
 store.close()
-await uploadDB(OUTPUT_DIR)
 
 await triggerSiteBuild()
 

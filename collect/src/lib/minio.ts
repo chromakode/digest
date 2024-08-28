@@ -1,4 +1,5 @@
 import { Minio, log, path } from '../../deps.ts'
+import { Store } from './storage.ts'
 import { fromNodeStream } from './utils.ts'
 
 export function initMinio() {
@@ -44,8 +45,11 @@ export function initMinio() {
     log.info('fetched digest.db from minio')
   }
 
-  async function uploadDB(outputDir: string) {
+  async function uploadDB(store: Store, outputDir: string) {
     log.info('uploading digest.db to minio')
+
+    const dbPath = await Deno.makeTempFile({ dir: outputDir, suffix: '.db' })
+    await store.db.query('VACUUM INTO :dbPath', { dbPath })
 
     const gzPath = path.join(outputDir, 'digest.db.gz')
     const gzFile = await Deno.open(gzPath, {
@@ -53,10 +57,12 @@ export function initMinio() {
       create: true,
     })
 
-    const inFile = await Deno.open(path.join(outputDir, 'digest.db'))
+    const inFile = await Deno.open(dbPath)
     await inFile.readable
       .pipeThrough(new CompressionStream('gzip'))
       .pipeTo(gzFile.writable)
+
+    await Deno.remove(dbPath)
 
     await minioClient.fPutObject(minioBucket, 'digest.db', gzPath, {
       'Content-Type': 'application/x-sqlite3',

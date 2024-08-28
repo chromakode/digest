@@ -7,7 +7,6 @@ import ContentWithSearch from '../components/ContentWithSearch'
 import Timestamp from '../components/Timestamp'
 import type { Content } from '../components/Article'
 import { isAfter, parseISO, subHours } from 'date-fns'
-import { partition } from 'lodash-es'
 
 const db = await AsyncDatabase.open(import.meta.env.DB_PATH ?? './digest.db')
 const rows = await db.all<Content>(`

@@ -8,8 +8,8 @@ import { useInView } from 'react-intersection-observer'
 
 export interface Props
   extends Omit<HTMLAttributes<HTMLTimeElement>, 'dateTime'> {
+  prefix?: string
   dateTime: Date
-  baseTime?: Date
 }
 
 const dateFormat: IntlFormatFormatOptions = {
@@ -21,7 +21,7 @@ const dateFormat: IntlFormatFormatOptions = {
   second: 'numeric',
 }
 
-export default function Timestamp({ dateTime }: Props) {
+export default function Timestamp({ dateTime, prefix }: Props) {
   const { ref, inView } = useInView()
 
   const [baseTime, setBaseTime] = useState<Date | null>(null)
@@ -57,6 +57,7 @@ export default function Timestamp({ dateTime }: Props) {
 
   return (
     <time ref={ref} dateTime={dateTime.toISOString()} title={title}>
+      {baseTime && prefix}
       {baseTime &&
         formatDistanceStrict(dateTime, baseTime, { addSuffix: true })}
     </time>

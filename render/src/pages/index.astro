@@ -62,10 +62,10 @@ const lastUpdate = await db.get<{ timestamp: string }>(
     <header>
       <h1>Max's Digest</h1>
       <span class="updated">
-        updated
         <Timestamp
           client:load
           dateTime={parseISO(lastUpdate.timestamp + 'Z')}
+          prefix="updated "
         />
       </span>
     </header>

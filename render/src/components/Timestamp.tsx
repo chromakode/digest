@@ -21,7 +21,7 @@ const dateFormat: IntlFormatFormatOptions = {
   second: 'numeric',
 }
 
-export default function Timestamp({ dateTime, prefix }: Props) {
+export default function Timestamp({ dateTime, prefix, ...props }: Props) {
   const { ref, inView } = useInView()
 
   const [baseTime, setBaseTime] = useState<Date | null>(null)
@@ -56,7 +56,7 @@ export default function Timestamp({ dateTime, prefix }: Props) {
   }
 
   return (
-    <time ref={ref} dateTime={dateTime.toISOString()} title={title}>
+    <time ref={ref} dateTime={dateTime.toISOString()} title={title} {...props}>
       {baseTime && prefix}
       {baseTime &&
         formatDistanceStrict(dateTime, baseTime, { addSuffix: true })}

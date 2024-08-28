@@ -7,7 +7,6 @@ export interface Content {
   id: string
   title: string
   contentTimestamp: string
-  now?: Date
   contentSummary: string
   url: string
   sourceId: string
@@ -28,15 +27,9 @@ function Info({
   sourceShortName,
   sourceURL,
   contentTimestamp,
-  now,
 }: Pick<
   ContentWithChildren,
-  | 'title'
-  | 'sourceShortName'
-  | 'sourceId'
-  | 'sourceURL'
-  | 'contentTimestamp'
-  | 'now'
+  'title' | 'sourceShortName' | 'sourceId' | 'sourceURL' | 'contentTimestamp'
 >) {
   const iconName = iconMap.get(sourceId)
   return (
@@ -45,7 +38,7 @@ function Info({
       <a className="source" href={sourceURL} title={sourceShortName}>
         {sourceShortName} {title}
       </a>
-      <Timestamp dateTime={parseISO(contentTimestamp + 'Z')} baseTime={now} />
+      <Timestamp dateTime={parseISO(contentTimestamp + 'Z')} />
     </div>
   )
 }

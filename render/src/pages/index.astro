@@ -60,13 +60,12 @@ const lastUpdate = await db.get<{ timestamp: string }>(
   <body>
     <header>
       <h1>Max's Digest</h1>
-      <span class="updated">
-        <Timestamp
-          client:load
-          dateTime={parseISO(lastUpdate.timestamp + 'Z')}
-          prefix="updated "
-        />
-      </span>
+      <Timestamp
+        client:load
+        className="updated"
+        dateTime={parseISO(lastUpdate.timestamp + 'Z')}
+        prefix="updated "
+      />
     </header>
     <main>
       <ContentWithSearch

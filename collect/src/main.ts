@@ -140,8 +140,8 @@ await fetchSource(new DigestSource(store.getContentWithChildSummaries()))
 const durationMs = performance.now() - startTime
 store.addSourceResult('system', { status: SourceStatus.SUCCESS, durationMs })
 
-writeQueue.pause()
-await uploadDB(store, OUTPUT_DIR)
+queueWrite()
+await writeQueue.onIdle()
 store.close()
 
 await triggerSiteBuild()

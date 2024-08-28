@@ -51,7 +51,7 @@ export function initMinio() {
     const dbPath = await Deno.makeTempFile({ dir: outputDir, suffix: '.db' })
     await store.db.query('VACUUM INTO :dbPath', { dbPath })
 
-    const gzPath = path.join(outputDir, 'digest.db.gz')
+    const gzPath = dbPath + '.gz'
     const gzFile = await Deno.open(gzPath, {
       write: true,
       create: true,

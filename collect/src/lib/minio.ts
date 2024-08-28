@@ -1,9 +1,19 @@
 import { Minio, log, path } from '../../deps.ts'
-import { requireEnv } from './config.ts'
-import { fromNodeStream, toNodeStream } from './utils.ts'
+import { fromNodeStream } from './utils.ts'
 
 export function initMinio() {
-  const endpoint = requireEnv('MINIO_ENDPOINT')
+  const endpoint = Deno.env.get('MINIO_ENDPOINT')
+
+  if (endpoint == null) {
+    return {
+      fetchDB() {
+        log.warn('MINIO_ENDPOINT unset: skipping DB fetch')
+      },
+      uploadDB() {
+        log.warn('MINIO_ENDPOINT unset: skipping DB upload')
+      },
+    }
+  }
 
   const minioURL = new URL(endpoint)
   const minioBucket = minioURL.pathname.substring(1)

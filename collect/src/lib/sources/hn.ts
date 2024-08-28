@@ -27,7 +27,7 @@ export class HNSource implements Source {
       // Hiring ads don't have these
       const subLineEl = el.nextElementSibling?.querySelector('.subline')
 
-      if (!linkEl || !subLineEl || !url || store.isContentFresh({ url })) {
+      if (!linkEl || !subLineEl || !url) {
         continue
       }
 
@@ -45,17 +45,23 @@ export class HNSource implements Source {
       const sourceURL = relativeURL(commentsEl?.getAttribute('href'), BASE_URL)
 
       const fetchContent = async () => {
-        const page = await fetchPage(url)
-        const { id } = await store.addContent({
-          ...page,
-          title,
-          contentTimestamp,
-          sourceURL,
-        })
+        let parentContentId = store.getFreshContentId({ url })
+        if (!parentContentId) {
+          const page = await fetchPage(url)
+          const { id: newId } = await store.addContent({
+            ...page,
+            title,
+            contentTimestamp,
+            sourceURL,
+          })
+          parentContentId = newId
+        }
+
         if (
           commentCount > MIN_COMMENT_COUNT &&
           sourceURL != null &&
-          sourceURL != url
+          sourceURL != url &&
+          !store.getFreshContentId({ url: sourceURL, delta: { hours: 0 } })
         ) {
           const commentsPage = await fetchPage(sourceURL)
           await store.addContent({
@@ -63,7 +69,7 @@ export class HNSource implements Source {
             title: 'comments',
             contentTimestamp,
             sourceURL,
-            parentContentId: id,
+            parentContentId,
           })
         }
       }

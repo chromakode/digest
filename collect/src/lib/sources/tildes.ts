@@ -44,7 +44,7 @@ export class TildesSource implements Source {
         relativeURL(linkEl?.getAttribute('href'), BASE_URL),
       )
 
-      if (!linkEl || !url || store.isContentFresh({ url })) {
+      if (!linkEl || !url) {
         continue
       }
 
@@ -61,17 +61,23 @@ export class TildesSource implements Source {
       )
 
       const fetchContent = async () => {
-        const page = await fetchPage(url)
-        const { id } = await store.addContent({
-          ...page,
-          title,
-          contentTimestamp,
-          sourceURL,
-        })
+        let parentContentId = store.getFreshContentId({ url })
+        if (!parentContentId) {
+          const page = await fetchPage(url)
+          const { id: newId } = await store.addContent({
+            ...page,
+            title,
+            contentTimestamp,
+            sourceURL,
+          })
+          parentContentId = newId
+        }
+
         if (
           commentCount > MIN_COMMENT_COUNT &&
           sourceURL != null &&
-          sourceURL !== url
+          sourceURL !== url &&
+          !store.getFreshContentId({ url: sourceURL, delta: { hours: 1 } })
         ) {
           const commentsPage = await fetchPage(sourceURL)
           await store.addContent({
@@ -79,7 +85,7 @@ export class TildesSource implements Source {
             title: 'comments',
             contentTimestamp,
             sourceURL,
-            parentContentId: id,
+            parentContentId,
           })
         }
       }

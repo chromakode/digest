@@ -161,7 +161,11 @@ export class Store {
     return results.length > 0 && results[0][0] > 0
   }
 
-  isContentFresh({ url, hash, delta = { days: 3 } }: ContentFreshQuery) {
+  getFreshContentId({
+    url,
+    hash,
+    delta = { days: 3 },
+  }: ContentFreshQuery): ContentId | null {
     const params: Record<string, string> = {
       threshold: dateFns.sub(Date.now(), delta).toISOString(),
     }
@@ -177,11 +181,11 @@ export class Store {
       params['hash'] = hash
     }
 
-    const results = this.db.query<[number]>(
-      `SELECT COUNT(1) FROM content WHERE ${predicates.join(' AND ')}`,
+    const results = this.db.queryEntries<{ id: ContentId }>(
+      `SELECT contentId as id FROM content WHERE ${predicates.join(' AND ')}`,
       params,
     )
-    return results.length > 0 && results[0][0] > 0
+    return results.length > 0 ? results[0].id : null
   }
 
   addSourceResult(
@@ -224,7 +228,7 @@ export class Store {
       },
       addSummary: this.addSummary.bind(this),
       updateSource: (data: SourceData) => this.updateSource(sourceId, data),
-      isContentFresh: this.isContentFresh.bind(this),
+      getFreshContentId: this.getFreshContentId.bind(this),
     }
   }
 }

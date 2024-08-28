@@ -63,5 +63,5 @@ export interface SourceStore {
     { contentSummary }: { contentSummary: string },
   ): void
   updateSource(data: SourceData): void
-  isContentFresh(opts: ContentFreshQuery): boolean
+  getFreshContentId(opts: ContentFreshQuery): ContentId | null
 }

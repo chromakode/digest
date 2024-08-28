@@ -52,7 +52,7 @@ export class PodcastSource implements Source {
       const url = item.enclosure.url
 
       const contentId = item.guid ? { hash: item.guid } : { url }
-      if (store.isContentFresh({ ...contentId, delta: { years: 100 } })) {
+      if (store.getFreshContentId({ ...contentId, delta: { years: 100 } })) {
         continue
       }
 

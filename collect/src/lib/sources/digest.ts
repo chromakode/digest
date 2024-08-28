@@ -62,7 +62,9 @@ export class DigestSource implements Source {
     )
     const hash = encodeBase64(hashBuffer)
 
-    if (store.isContentFresh({ url: digestURL, hash, delta: { years: 100 } })) {
+    if (
+      store.getFreshContentId({ url: digestURL, hash, delta: { years: 100 } })
+    ) {
       return SourceStatus.SUCCESS
     }
 

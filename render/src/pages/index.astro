@@ -2,6 +2,7 @@
 import '@fontsource-variable/open-sans/wdth.css'
 import '@fontsource-variable/open-sans/wdth-italic.css'
 
+import { ViewTransitions } from 'astro:transitions'
 import { AsyncDatabase } from 'promised-sqlite3'
 import ContentWithSearch from '../components/ContentWithSearch'
 import Timestamp from '../components/Timestamp'
@@ -56,6 +57,7 @@ const lastUpdate = await db.get<{ timestamp: string }>(
     <meta name="generator" content={Astro.generator} />
     <meta name="robots" content="noindex, nofollow" />
     <title>Max's Digest</title>
+    <ViewTransitions />
   </head>
   <body>
     <header>
@@ -74,177 +76,177 @@ const lastUpdate = await db.get<{ timestamp: string }>(
         podcasts={newPodcasts}
       />
     </main>
-  </body>
-
-  <style>
-    :root {
-      --source-width: 12rem;
-      --content-width: 42rem;
-      --color-bg: white;
-      --color-text: black;
-      --color-link: blue;
-      --accent: #f6f6f6;
-      --accent-border: #333;
-    }
-
-    @media (prefers-color-scheme: dark) {
+    <script src="../scripts/refreshIfStale.ts"></script>
+    <style>
       :root {
-        --color-bg: #111010;
-        --color-text: #c5b9b9;
-        --color-link: #7c7caa;
-        --accent: #222;
+        --source-width: 12rem;
+        --content-width: 42rem;
+        --color-bg: white;
+        --color-text: black;
+        --color-link: blue;
+        --accent: #f6f6f6;
         --accent-border: #333;
       }
-    }
 
-    html {
-      scrollbar-gutter: stable;
-    }
-
-    body {
-      font-family: 'Open Sans Variable', sans-serif;
-      max-width: var(--content-width);
-      margin: 0 auto;
-      padding: 0 16px;
-      background: var(--color-bg);
-      color: var(--color-text);
-    }
-
-    h1 {
-      font-stretch: 85%;
-      font-weight: 600;
-      margin-bottom: 1rem;
-    }
-
-    main {
-      article {
-        position: relative;
-        margin-bottom: 2rem;
-
-        h2,
-        .source {
-          line-height: 2rem;
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #111010;
+          --color-text: #c5b9b9;
+          --color-link: #7c7caa;
+          --accent: #222;
+          --accent-border: #333;
         }
+      }
 
-        h2 {
-          gap: 0.5em;
-          margin-top: 0;
-          margin-bottom: 0.5rem;
-        }
+      html {
+        scrollbar-gutter: stable;
+      }
 
-        .info {
-          display: flex;
-          align-items: baseline;
-          gap: 0.5rem;
-        }
+      body {
+        font-family: 'Open Sans Variable', sans-serif;
+        max-width: var(--content-width);
+        margin: 0 auto;
+        padding: 0 16px;
+        background: var(--color-bg);
+        color: var(--color-text);
+      }
 
-        .domain {
-          font-size: 0.85rem;
-          font-weight: normal;
-          margin-left: 1em;
-        }
+      h1 {
+        font-stretch: 85%;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
 
-        time {
-          font-size: 0.85em;
-          opacity: 0.4;
-        }
+      main {
+        article {
+          position: relative;
+          margin-bottom: 2rem;
 
-        .source,
-        .podcast-name {
-          font-weight: 600;
-          color: var(--color-text);
-          opacity: 0.6;
-        }
+          h2,
+          .source {
+            line-height: 2rem;
+          }
 
-        .source,
-        h2,
-        .podcast-name {
-          font-stretch: 85%;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
+          h2 {
+            gap: 0.5em;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+          }
 
-        .podcast {
-          margin: 0.25em 0;
-        }
+          .info {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+          }
 
-        a {
-          text-decoration: none;
-          color: var(--color-link);
-        }
+          .domain {
+            font-size: 0.85rem;
+            font-weight: normal;
+            margin-left: 1em;
+          }
 
-        .icon {
-          width: 18px;
-          height: 18px;
-          align-self: center;
-          opacity: 0.9;
-        }
+          time {
+            font-size: 0.85em;
+            opacity: 0.4;
+          }
 
-        .summary {
-          margin: 0.5rem 0;
-        }
+          .source,
+          .podcast-name {
+            font-weight: 600;
+            color: var(--color-text);
+            opacity: 0.6;
+          }
 
-        p {
-          margin: 0.5em 0;
-        }
+          .source,
+          h2,
+          .podcast-name {
+            font-stretch: 85%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
 
-        ul {
-          padding-left: 1em;
-          margin-bottom: 0;
-        }
+          .podcast {
+            margin: 0.25em 0;
+          }
 
-        li {
-          margin: 0.35em 0;
-        }
+          a {
+            text-decoration: none;
+            color: var(--color-link);
+          }
 
-        .child {
-          background: var(--accent);
-          padding: 0.25rem 1rem;
-          margin: 0.5rem 0;
+          .icon {
+            width: 18px;
+            height: 18px;
+            align-self: center;
+            opacity: 0.9;
+          }
 
           .summary {
-            margin: 0;
+            margin: 0.5rem 0;
+          }
+
+          p {
+            margin: 0.5em 0;
           }
 
           ul {
-            margin: 0;
+            padding-left: 1em;
+            margin-bottom: 0;
+          }
+
+          li {
+            margin: 0.35em 0;
+          }
+
+          .child {
+            background: var(--accent);
+            padding: 0.25rem 1rem;
+            margin: 0.5rem 0;
+
+            .summary {
+              margin: 0;
+            }
+
+            ul {
+              margin: 0;
+            }
           }
         }
       }
-    }
 
-    body {
-      h1,
-      .search input {
-        margin-bottom: 2rem;
-      }
-
-      header {
-        display: flex;
-        align-items: baseline;
-        gap: 1rem;
-
-        .updated {
-          font-size: 0.9em;
-          opacity: 0.7;
+      body {
+        h1,
+        .search input {
+          margin-bottom: 2rem;
         }
-      }
 
-      .search {
-        display: flex;
-
-        input {
+        header {
           display: flex;
-          flex: 1;
-          background: var(--accent);
-          color: var(--color-text);
-          border: 2px solid var(--accent-border);
-          border-radius: 4px;
-          box-sizing: content-box;
-          padding: 1rem;
-          font-size: 1.15rem;
+          align-items: baseline;
+          gap: 1rem;
+
+          .updated {
+            font-size: 0.9em;
+            opacity: 0.7;
+          }
+        }
+
+        .search {
+          display: flex;
+
+          input {
+            display: flex;
+            flex: 1;
+            background: var(--accent);
+            color: var(--color-text);
+            border: 2px solid var(--accent-border);
+            border-radius: 4px;
+            box-sizing: content-box;
+            padding: 1rem;
+            font-size: 1.15rem;
+          }
         }
       }
-    }
-  </style>
+    </style>
+  </body>
 </html>

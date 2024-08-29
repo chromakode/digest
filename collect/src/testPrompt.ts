@@ -1,4 +1,5 @@
 import { assert, path } from '../deps.ts'
+import { initConfig } from './lib/config.ts'
 import {
   summarize,
   summarizeChildPrompt,
@@ -6,6 +7,8 @@ import {
 } from './lib/openai.ts'
 import { Store } from './lib/storage.ts'
 import { Content } from './types.ts'
+
+await initConfig()
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 

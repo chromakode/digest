@@ -14,6 +14,7 @@ import { initMinio } from './lib/minio.ts'
 import { DigestSource } from './lib/sources/digest.ts'
 import { PQueue } from '../deps.ts'
 import { fetchWithUA } from './lib/fetch.ts'
+import { initConfig } from './lib/config.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 const SITE_BUILD_HOOK = Deno.env.get('SITE_BUILD_HOOK')
@@ -28,6 +29,8 @@ log.setup({
     }),
   },
 })
+
+await initConfig()
 
 const { fetchDB, uploadDB } = initMinio()
 

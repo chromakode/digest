@@ -11,4 +11,6 @@ export function requireEnv(name: string) {
   return val
 }
 
-await loadConfig({ export: true })
+export async function initConfig() {
+  await loadConfig({ export: true })
+}

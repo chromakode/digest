@@ -1,6 +1,7 @@
 // Download the DB and generate the search index for the site render.
 
 import { log } from '../deps.ts'
+import { initConfig } from './lib/config.ts'
 import { initMinio } from './lib/minio.ts'
 import { generateIndex } from './lib/search.ts'
 import { Store } from './lib/storage.ts'
@@ -13,6 +14,8 @@ log.setup({
     }),
   },
 })
+
+await initConfig()
 
 const { fetchDB } = initMinio()
 

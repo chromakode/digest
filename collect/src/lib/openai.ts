@@ -12,7 +12,7 @@ const summarizeQueue = new PQueue({
 })
 
 export const summarizePrompt = (title: string, content: string) => `
-Summarize the following content in a single sentence using 16 words or less. If the summary is similar to the title, omit the summary sentence. Also, extract 3 key bulleted points. Use active tense. Use markdown, but do not use bold or italic.
+Summarize the following content in a single sentence using 16 words or less. Also, extract 3 key bulleted points. Use active tense. Use markdown, but do not use bold or italic.
 
 Article title: ${title}
 
@@ -26,7 +26,7 @@ export const summarizeChildPrompt = (
   summary: string,
   content: string,
 ) => `
-Summarize the following discussion in 2 bulleted points. Use active tense. Use markdown, but do not use bold or italic. Do not repeat information from the title or summary.
+Summarize the following discussion in 2 bulleted points. Use active tense. Use markdown, but do not use bold or italic. Do not include information from the title or summary. Do not use the terms "participants", "users", or "community members" to refer to commenters: refer to them as "commenters".
 
 Title: ${title}
 

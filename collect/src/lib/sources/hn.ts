@@ -4,7 +4,7 @@ import { relativeURL, tryDate } from '../utils.ts'
 import { fetchDocument, fetchPage } from '../web.ts'
 
 const BASE_URL = 'https://news.ycombinator.com'
-const MIN_COMMENT_COUNT = 3
+const MIN_COMMENT_COUNT = 1
 
 export class HNSource implements Source {
   id = 'hn' as SourceId
@@ -61,7 +61,7 @@ export class HNSource implements Source {
           commentCount > MIN_COMMENT_COUNT &&
           sourceURL != null &&
           sourceURL != url &&
-          !store.getFreshContentId({ url: sourceURL, delta: { hours: 0 } })
+          !store.getFreshContentId({ url: sourceURL, delta: { hours: 3 } })
         ) {
           const commentsPage = await fetchPage(sourceURL)
           await store.addContent({

@@ -70,12 +70,13 @@ const lastUpdate = await db.get<{ timestamp: string }>(
   <body>
     <header>
       <h1>Max's Digest</h1>
-      <Timestamp
-        client:load
-        className="updated"
-        dateTime={parseISO(lastUpdate.timestamp + 'Z')}
-        prefix="updated "
-      />
+      <span class="updated">
+        updated
+        <Timestamp
+          client:load
+          dateTime={parseISO(lastUpdate.timestamp + 'Z')}
+        /></span
+      >
     </header>
     <main>
       <ContentWithSearch
@@ -85,6 +86,7 @@ const lastUpdate = await db.get<{ timestamp: string }>(
       />
     </main>
     <script src="../scripts/refreshIfStale.ts"></script>
+    <script src="../scripts/fastRenderTimestamps.ts"></script>
     <style>
       :root {
         --source-width: 12rem;

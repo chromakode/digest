@@ -8,7 +8,6 @@ import { useInView } from 'react-intersection-observer'
 
 export interface Props
   extends Omit<HTMLAttributes<HTMLTimeElement>, 'dateTime'> {
-  prefix?: string
   dateTime: Date
 }
 
@@ -21,10 +20,10 @@ const dateFormat: IntlFormatFormatOptions = {
   second: 'numeric',
 }
 
-export default function Timestamp({ dateTime, prefix, ...props }: Props) {
+export default function Timestamp({ dateTime, ...props }: Props) {
   const { ref, inView } = useInView()
 
-  const [baseTime, setBaseTime] = useState<Date | null>(null)
+  const [baseTime, setBaseTime] = useState<number>(() => Date.now())
   const [title, setTitle] = useState<string | undefined>()
 
   useEffect(() => {
@@ -35,7 +34,7 @@ export default function Timestamp({ dateTime, prefix, ...props }: Props) {
     let timeout: number | undefined
     function update() {
       const now = Date.now()
-      setBaseTime(new Date())
+      setBaseTime(now)
       setTitle(intlFormat(dateTime, dateFormat))
 
       const wait = Math.max(
@@ -57,9 +56,7 @@ export default function Timestamp({ dateTime, prefix, ...props }: Props) {
 
   return (
     <time ref={ref} dateTime={dateTime.toISOString()} title={title} {...props}>
-      {baseTime && prefix}
-      {baseTime &&
-        formatDistanceStrict(dateTime, baseTime, { addSuffix: true })}
+      {formatDistanceStrict(dateTime, baseTime, { addSuffix: true })}
     </time>
   )
 }

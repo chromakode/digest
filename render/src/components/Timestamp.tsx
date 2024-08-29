@@ -56,7 +56,8 @@ export default function Timestamp({ dateTime, ...props }: Props) {
 
   return (
     <time ref={ref} dateTime={dateTime.toISOString()} title={title} {...props}>
-      {formatDistanceStrict(dateTime, baseTime, { addSuffix: true })}
+      {!import.meta.env.SSR &&
+        formatDistanceStrict(dateTime, baseTime, { addSuffix: true })}
     </time>
   )
 }

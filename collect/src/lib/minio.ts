@@ -1,4 +1,4 @@
-import { Minio, log, path } from '../../deps.ts'
+import { Minio, log } from '../../deps.ts'
 import { Store } from './storage.ts'
 import { fromNodeStream } from './utils.ts'
 

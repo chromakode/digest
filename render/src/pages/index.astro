@@ -1,6 +1,7 @@
 ---
 import '@fontsource-variable/open-sans/wdth.css'
 import '@fontsource-variable/open-sans/wdth-italic.css'
+import openSansWoff2 from '@fontsource-variable/open-sans/files/open-sans-latin-wdth-normal.woff2?url'
 
 import { ViewTransitions } from 'astro:transitions'
 import { AsyncDatabase } from 'promised-sqlite3'
@@ -56,6 +57,13 @@ const lastUpdate = await db.get<{ timestamp: string }>(
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="robots" content="noindex, nofollow" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={openSansWoff2}
+      crossorigin="anonymous"
+    />
     <title>Max's Digest</title>
     <ViewTransitions />
   </head>

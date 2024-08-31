@@ -1,5 +1,5 @@
 import { assert, path } from '../deps.ts'
-import { initConfig } from './lib/config.ts'
+import 'https://deno.land/std@0.224.0/dotenv/load.ts'
 import {
   summarize,
   summarizeChildPrompt,
@@ -8,15 +8,13 @@ import {
 import { Store } from './lib/storage.ts'
 import { Content } from './types.ts'
 
-await initConfig()
-
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 
 const dbPath = path.join(OUTPUT_DIR, 'digest.db')
 const store = new Store(dbPath)
 
 const content = store.db.queryEntries<Content>(
-  'SELECT contentId as id, title, content FROM content WHERE (SELECT COUNT(1) FROM content c2 WHERE c2.parentContentId = content.contentId) > 1 LIMIT 1',
+  'SELECT contentId as id, title, content FROM content WHERE (SELECT COUNT(1) FROM content c2 WHERE c2.parentContentId = content.contentId) > 0 LIMIT 1',
 )[0]
 
 assert(content)

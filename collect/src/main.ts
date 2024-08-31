@@ -2,7 +2,7 @@ import { log, path } from '../deps.ts'
 import 'https://deno.land/std@0.224.0/dotenv/load.ts'
 
 import { HNSource } from './lib/sources/hn.ts'
-import { readOPML } from './lib/sources/podcast.ts'
+import { feedsFromOPML } from './lib/sources/feed.ts'
 import { TildesSource } from './lib/sources/tildes.ts'
 import { Store } from './lib/storage.ts'
 import {
@@ -15,6 +15,7 @@ import { initMinio } from './lib/minio.ts'
 import { DigestSource } from './lib/sources/digest.ts'
 import { PQueue } from '../deps.ts'
 import { fetchWithUA } from './lib/fetch.ts'
+import { podcastsFromOPML } from './lib/sources/podcast.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 const SITE_BUILD_HOOK = Deno.env.get('SITE_BUILD_HOOK')
@@ -111,8 +112,9 @@ async function fetchSource(source: Source) {
 }
 
 async function fetchAll() {
-  const feeds = await readOPML('./feeds.opml')
-  const sources = [new HNSource(), new TildesSource(), ...feeds]
+  const feeds = await feedsFromOPML('./feeds.opml')
+  const podcasts = await podcastsFromOPML('./podcasts.opml')
+  const sources = [new HNSource(), new TildesSource(), ...feeds, ...podcasts]
 
   const fetchPromises = sources
     .filter(({ id }) => !store.isSourceFresh(id))

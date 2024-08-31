@@ -1,18 +1,17 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <opml version="1.0">
     <head>
-        <title>Podcast Feeds</title>
+        <title>Article Feeds</title>
     </head>
     <body>
     <outline text="feeds">
-            <outline type="rss" text="The Bugle" xmlUrl="https://feeds.acast.com/public/shows/5e7b777ba085cbe7192b0607" />
-            <outline type="rss" text="The Daily" xmlUrl="https://feeds.simplecast.com/54nAGcIl" />
-            <outline type="rss" text="Decoding the Gurus" xmlUrl="https://feeds.captivate.fm/decoding-the-gurus/" />
-            <outline type="rss" text="Nature Podcast" xmlUrl="https://feeds.acast.com/public/shows/0185cea5-9e3b-4b82-a887-26f91f92765f" />
-            <outline type="rss" text="Stuff You Should Know" xmlUrl="https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/a91018a4-ea4f-4130-bf55-ae270180c327/44710ecc-10bb-48d1-93c7-ae270180c33e/podcast.rss" />
-            <outline type="rss" text="This Week in Virology" xmlUrl="https://feeds.libsyn.com/21581/last100" />
-            <outline type="rss" text="Up First" xmlUrl="https://feeds.npr.org/510318/podcast.xml" />
-            <outline type="rss" text="Well There's Your Problem" xmlUrl="https://feedcdn.podbean.com/wtyppod/feed.xml" />
+        <outline type="rss" text="KGW" xmlUrl="https://www.kgw.com/feeds/syndication/rss/news/local" />
+        <outline type="rss" text="Portland Mercury" xmlUrl="https://www.portlandmercury.com/portland/Rss.xml?id=Syndication" />
+        <outline type="rss" text="Willamette Week" xmlUrl="https://www.wweek.com/arc/outboundfeeds/rss/?outputType=xml" />
+        <outline type="rss" text="OPB" xmlUrl="https://www.opb.org/arc/outboundfeeds/rss/?outputType=xml" />
+
+        <outline type="rss" text="NPR" xmlUrl="https://feeds.npr.org/1001/rss.xml" />
+        <outline type="rss" text="NYT" xmlUrl="https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml" />
     </outline>
     </body>
 </opml>

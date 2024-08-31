@@ -10,7 +10,7 @@ export {
 } from 'https://deno.land/x/sqlite@v3.8/mod.ts'
 export { default as PQueue } from 'npm:p-queue@8.0.1'
 export { default as PRetry } from 'npm:p-retry@6.2.0'
-export { load as loadConfig } from 'https://deno.land/std@0.224.0/dotenv/mod.ts'
+
 export { default as OpenAI } from 'https://deno.land/x/openai@v4.52.0/mod.ts'
 export {
   DOMParser,

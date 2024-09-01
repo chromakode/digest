@@ -1,4 +1,4 @@
-import { dateFns, log, path } from '../deps.ts'
+import { log, path } from '../deps.ts'
 import 'https://deno.land/std@0.224.0/dotenv/load.ts'
 
 import { HNSource } from './lib/sources/hn.ts'

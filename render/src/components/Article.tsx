@@ -17,11 +17,6 @@ export interface Content {
 
 export type ContentWithChildren = Content & { childContent?: Content[] }
 
-const iconMap = new Map([
-  ['hn', 'hn.svg'],
-  ['tildes', 'tildes.png'],
-])
-
 function Info({
   title,
   sourceId,
@@ -32,10 +27,8 @@ function Info({
   ContentWithChildren,
   'title' | 'sourceShortName' | 'sourceId' | 'sourceURL' | 'contentTimestamp'
 >) {
-  const iconName = iconMap.get(sourceId)
   return (
     <div className="info">
-      {iconName && <img className="icon" src={`/icon/${iconName}`} />}
       <a className="source" href={sourceURL} title={sourceShortName}>
         {sourceShortName} {title}
       </a>

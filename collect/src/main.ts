@@ -47,7 +47,7 @@ const writeQueue = new PQueue({
 })
 
 function queueWrite() {
-  if (writeQueue.pending > 0) {
+  if (writeQueue.size > 0) {
     return
   }
 

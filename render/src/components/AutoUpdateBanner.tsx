@@ -39,7 +39,7 @@ export default function AutoUpdateBanner() {
     setUpdating(true)
   }, [])
 
-  return canUpdate ? (
+  return canUpdate || isUpdating ? (
     <a href="/" className="update-banner" onClick={handleClick}>
       {isUpdating ? 'Updating...' : 'Show new stories'}
     </a>

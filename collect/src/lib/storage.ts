@@ -1,3 +1,4 @@
+import { z } from '../../deps.ts'
 import { SQLite, dateFns } from '../../deps.ts'
 import {
   Content,
@@ -12,6 +13,7 @@ import {
   SourceStatus,
   SourceStore,
 } from '../types.ts'
+import { ClassifySchema } from './openai.ts'
 
 export class Store {
   db: SQLite
@@ -55,6 +57,16 @@ export class Store {
         timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
         contentId INTEGER NOT NULL UNIQUE,
         contentSummary TEXT NOT NULL,
+        FOREIGN KEY (contentId) REFERENCES content (contentId)
+      )
+    `)
+
+    this.db.execute(`
+      CREATE TABLE IF NOT EXISTS classify (
+        classifyId INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+        contentId INTEGER NOT NULL UNIQUE,
+        classifyResult TEXT NOT NULL,
         FOREIGN KEY (contentId) REFERENCES content (contentId)
       )
     `)
@@ -139,6 +151,16 @@ export class Store {
     return results.length > 0 ? results[0][0] : null
   }
 
+  getClassifyResult(
+    contentId: ContentId,
+  ): z.infer<typeof ClassifySchema> | null {
+    const results = this.db.query<[string]>(
+      'SELECT classifyResult FROM classify WHERE contentId=:contentId',
+      { contentId },
+    )
+    return results.length > 0 ? JSON.parse(results[0][0]) : null
+  }
+
   isSourceFresh(
     sourceId: SourceId,
     { deltaSuccess, deltaRetry }: SourceFetchOptions = {
@@ -203,8 +225,18 @@ export class Store {
     { contentSummary }: { contentSummary: string },
   ) {
     this.db.query(
-      'INSERT INTO summary (contentId, contentSummary) VALUES (:contentId, :contentSummary) ON CONFLICT(contentId) DO UPDATE SET contentSummary=:contentSummary',
+      'INSERT INTO summary (contentId, contentSummary) VALUES (:contentId, :contentSummary) ON CONFLICT(contentId) DO UPDATE SET contentSummary=:contentSummary, timestamp=CURRENT_TIMESTAMP',
       { contentId, contentSummary },
+    )
+  }
+
+  addClassifyResult(
+    contentId: ContentId,
+    { classifyResult }: { classifyResult: z.infer<typeof ClassifySchema> },
+  ) {
+    this.db.query(
+      'INSERT INTO classify (contentId, classifyResult) VALUES (:contentId, :classifyResult) ON CONFLICT(contentId) DO UPDATE SET classifyResult=:classifyResult, timestamp=CURRENT_TIMESTAMP',
+      { contentId, classifyResult: JSON.stringify(classifyResult) },
     )
   }
 

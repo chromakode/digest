@@ -8,13 +8,14 @@ export interface Content {
   title: string
   contentTimestamp: string
   contentSummary: string
+  classifyResult?: string
   url: string
   sourceId: string
   sourceShortName: string
   sourceURL: string
 }
 
-export type ContentWithChildren = Content & { childContent: Content[] }
+export type ContentWithChildren = Content & { childContent?: Content[] }
 
 const iconMap = new Map([
   ['hn', 'hn.svg'],
@@ -50,7 +51,7 @@ export default function Article(content: ContentWithChildren) {
     sourceId,
     contentSummary,
     url: urlStr,
-    childContent,
+    childContent = [],
   } = content
 
   const url = new URL(urlStr)

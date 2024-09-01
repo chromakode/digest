@@ -1,0 +1,306 @@
+---
+import '@fontsource-variable/open-sans/wdth.css'
+import '@fontsource-variable/open-sans/wdth-italic.css'
+import openSansWoff2 from '@fontsource-variable/open-sans/files/open-sans-latin-wdth-normal.woff2?url'
+
+import { ViewTransitions } from 'astro:transitions'
+import { AsyncDatabase } from 'promised-sqlite3'
+import ContentWithSearch from './ContentWithSearch'
+import Timestamp from './Timestamp'
+import type { Content } from './Article'
+import { isAfter, parseISO, subHours } from 'date-fns'
+import { partition } from 'lodash-es'
+
+interface Props {
+  showExcluded?: boolean
+}
+
+const db = await AsyncDatabase.open(import.meta.env.DB_PATH ?? './digest.db')
+const rows = await db.all<Content>(`
+  SELECT contentId as id, sourceId, url, sourceURL, title, contentTimestamp, contentSummary, classifyResult, shortName as sourceShortName
+  FROM content
+  LEFT JOIN source USING (sourceId)
+  LEFT JOIN summary USING (contentId)
+  LEFT JOIN classify USING (contentId)
+  WHERE content.timestamp > datetime('now', '-1 day') AND parentContentId IS NULL
+  ORDER BY content.timestamp DESC
+`)
+
+const [filteredRows, excludedRows] = partition(rows, (row) => {
+  if (row.sourceId.startsWith('feed:') && row.classifyResult) {
+    const {
+      surprising,
+      current_event,
+      newsworthy,
+      world_impact,
+      fluff,
+      marketing,
+    } = JSON.parse(row.classifyResult)
+    const pos = [surprising, current_event, newsworthy, world_impact]
+    const neg = [fluff, marketing]
+    return pos.some((s) => s >= 4) && !neg.some((s) => s >= 3)
+  }
+
+  return true
+})
+
+const rowsWithChildren = await Promise.all(
+  filteredRows.map(async (row) => {
+    const childContent = await db.all<Content>(
+      `
+      SELECT contentId as id, sourceId, url, sourceURL, title, contentTimestamp, contentSummary, shortName as sourceShortName
+      FROM content
+      LEFT JOIN source USING (sourceId)
+      LEFT JOIN summary USING (contentId)
+      WHERE parentContentId = $parentContentId
+    `,
+      { $parentContentId: row.id },
+    )
+    return { ...row, childContent }
+  }),
+)
+
+const now = Date.now()
+const newPodcastThreshold = subHours(now, 12)
+
+const newPodcasts = rowsWithChildren.filter(
+  ({ sourceId, contentTimestamp }) =>
+    sourceId.startsWith('podcast:') &&
+    isAfter(parseISO(contentTimestamp + 'Z'), newPodcastThreshold),
+)
+
+const lastUpdate = await db.get<{ timestamp: string }>(
+  'SELECT timestamp FROM updateLog WHERE sourceId = "system" ORDER BY timestamp DESC LIMIT 1',
+)
+
+const { showExcluded = false } = Astro.props
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={openSansWoff2}
+      crossorigin="anonymous"
+    />
+    <title>Max's Digest</title>
+    <ViewTransitions />
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Max's Digest</a></h1>
+      <span class="updated">
+        updated
+        <Timestamp
+          client:load
+          dateTime={parseISO(lastUpdate.timestamp + 'Z')}
+        /></span
+      >
+      <a class="excluded-count" href="/excluded"
+        >{excludedRows.length} filtered</a
+      >
+    </header>
+    <main>
+      <ContentWithSearch
+        client:load
+        rows={showExcluded ? excludedRows : filteredRows}
+        podcasts={showExcluded ? [] : newPodcasts}
+      />
+    </main>
+    <script src="../scripts/refreshIfStale.ts"></script>
+    <script src="../scripts/fastRenderTimestamps.ts"></script>
+    <style>
+      :root {
+        --source-width: 12rem;
+        --content-width: 42rem;
+        --color-bg: white;
+        --color-text: black;
+        --color-link: blue;
+        --accent: #f6f6f6;
+        --accent-border: #333;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #111010;
+          --color-text: #c5b9b9;
+          --color-link: #7c7caa;
+          --accent: #222;
+          --accent-border: #333;
+        }
+      }
+
+      html {
+        scrollbar-gutter: stable;
+      }
+
+      body {
+        font-family: 'Open Sans Variable', sans-serif;
+        max-width: var(--content-width);
+        margin: 0 auto;
+        padding: 0 16px;
+        background: var(--color-bg);
+        color: var(--color-text);
+      }
+
+      h1 {
+        font-stretch: 85%;
+        font-weight: 600;
+        margin-bottom: 1rem;
+
+        a {
+          color: var(--color-text);
+          text-decoration: none;
+        }
+      }
+
+      main {
+        article {
+          position: relative;
+          margin-bottom: 2rem;
+
+          h2,
+          .source {
+            line-height: 2rem;
+          }
+
+          h2 {
+            gap: 0.5em;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+          }
+
+          .info {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+          }
+
+          .domain {
+            font-size: 0.85rem;
+            font-weight: normal;
+            margin-left: 1em;
+          }
+
+          time {
+            font-size: 0.85em;
+            opacity: 0.4;
+          }
+
+          .source,
+          .podcast-name {
+            font-weight: 600;
+            color: var(--color-text);
+            opacity: 0.6;
+          }
+
+          .source,
+          h2,
+          .podcast-name {
+            font-stretch: 85%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .podcast {
+            margin: 0.25em 0;
+          }
+
+          a {
+            text-decoration: none;
+            color: var(--color-link);
+          }
+
+          .icon {
+            width: 18px;
+            height: 18px;
+            align-self: center;
+            opacity: 0.9;
+          }
+
+          .summary {
+            margin: 0.5rem 0;
+          }
+
+          p {
+            margin: 0.5em 0;
+          }
+
+          ul {
+            padding-left: 1em;
+            margin-bottom: 0;
+          }
+
+          li {
+            margin: 0.35em 0;
+          }
+
+          .child {
+            background: var(--accent);
+            padding: 0.25rem 1rem;
+            margin: 0.5rem 0;
+
+            .summary {
+              margin: 0;
+            }
+
+            ul {
+              margin: 0;
+            }
+          }
+        }
+      }
+
+      body {
+        h1,
+        .search input {
+          margin-bottom: 2rem;
+        }
+
+        header {
+          display: flex;
+          align-items: baseline;
+          gap: 1rem;
+
+          .updated,
+          .excluded-count {
+            font-size: 0.9em;
+            opacity: 0.7;
+          }
+
+          .excluded-count {
+            color: var(--color-text);
+            text-decoration: none;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+
+        .search {
+          display: flex;
+
+          input {
+            display: flex;
+            flex: 1;
+            background: var(--accent);
+            color: var(--color-text);
+            border: 2px solid var(--accent-border);
+            border-radius: 4px;
+            box-sizing: content-box;
+            padding: 1rem;
+            font-size: 1.15rem;
+          }
+        }
+      }
+    </style>
+  </body>
+</html>

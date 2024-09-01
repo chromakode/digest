@@ -70,16 +70,18 @@ export default function ContentWithSearch({
       {!results && (
         <>
           {latestDigest && <Article {...latestDigest} />}
-          <article className="new-podcasts">
-            {podcasts.map(({ id, contentSummary, url, sourceShortName }) => (
-              <p key={id} className="podcast">
-                <a href={url} className="podcast-name">
-                  {sourceShortName}
-                </a>
-                : {contentSummary.split('\n')[0]}{' '}
-              </p>
-            ))}
-          </article>
+          {podcasts.length > 0 && (
+            <article className="new-podcasts">
+              {podcasts.map(({ id, contentSummary, url, sourceShortName }) => (
+                <p key={id} className="podcast">
+                  <a href={url} className="podcast-name">
+                    {sourceShortName}
+                  </a>
+                  : {contentSummary.split('\n')[0]}{' '}
+                </p>
+              ))}
+            </article>
+          )}
         </>
       )}
 

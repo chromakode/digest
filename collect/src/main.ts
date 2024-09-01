@@ -5,7 +5,12 @@ import { HNSource } from './lib/sources/hn.ts'
 import { feedsFromOPML } from './lib/sources/feed.ts'
 import { TildesSource } from './lib/sources/tildes.ts'
 import { Store } from './lib/storage.ts'
-import { llm, summarizeChildPrompt, summarizePrompt } from './lib/openai.ts'
+import {
+  classifyContent,
+  llm,
+  summarizeChildPrompt,
+  summarizePrompt,
+} from './lib/openai.ts'
 import { Content, Source, SourceStatus } from './types.ts'
 import { initMinio } from './lib/minio.ts'
 import { DigestSource } from './lib/sources/digest.ts'
@@ -50,6 +55,10 @@ function queueWrite() {
   })
 }
 
+async function classifyAndSummarize(content: Content) {
+  await Promise.all([fetchSummary(content), fetchClassifyResult(content)])
+}
+
 async function fetchSummary(content: Content) {
   if (store.getSummary(content.id)) {
     return
@@ -89,10 +98,42 @@ async function fetchSummary(content: Content) {
   store.addSummary(content.id, { contentSummary })
 }
 
+async function fetchClassifyResult(content: Content) {
+  if (store.getClassifyResult(content.id)) {
+    return
+  }
+
+  if (content.parentContentId) {
+    return
+  }
+
+  const contentBody = content.content.substring(0, 50000)
+
+  let classifyResult
+  try {
+    classifyResult = await classifyContent(content.title, contentBody)
+  } catch (err) {
+    log.error('error fetching classify', {
+      contentId: content.id,
+      err,
+      msg: err.toString(),
+    })
+    return
+  }
+
+  if (!classifyResult) {
+    return
+  }
+
+  store.addClassifyResult(content.id, { classifyResult })
+}
+
 async function fetchSource(source: Source) {
   log.info('fetching source', { id: source.id })
 
-  const sourceStore = store.withSource(source.id, { onContent: fetchSummary })
+  const sourceStore = store.withSource(source.id, {
+    onContent: classifyAndSummarize,
+  })
 
   const startTime = performance.now()
   let status = SourceStatus.ERROR
@@ -126,7 +167,9 @@ async function fetchAll() {
 }
 
 async function summarizeAllMissing() {
-  const summarizePromises = store.getContentMissingSummary().map(fetchSummary)
+  const summarizePromises = store
+    .getContentMissingSummary()
+    .map(classifyAndSummarize)
   await Promise.allSettled(summarizePromises)
 }
 

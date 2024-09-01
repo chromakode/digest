@@ -64,12 +64,14 @@ ${content}
 `.trim()
 
 export const ClassifySchema = z.object({
-  surprising: z.number(),
-  current_event: z.number(),
-  newsworthy: z.number(),
-  world_impact: z.number(),
-  fluff: z.number(),
-  marketing: z.number(),
+  scores: z.object({
+    surprising: z.number(),
+    current_event: z.number(),
+    newsworthy: z.number(),
+    world_impact: z.number(),
+    fluff: z.number(),
+    marketing: z.number(),
+  }),
   category: z
     .enum([
       'world_news',

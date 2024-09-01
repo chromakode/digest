@@ -35,7 +35,7 @@ const [filteredRows, excludedRows] = partition(rows, (row) => {
       world_impact,
       fluff,
       marketing,
-    } = JSON.parse(row.classifyResult)
+    } = JSON.parse(row.classifyResult).scores ?? {}
     const pos = [surprising, current_event, newsworthy, world_impact]
     const neg = [fluff, marketing]
     return pos.some((s) => s >= 4) && !neg.some((s) => s >= 3)
@@ -112,6 +112,7 @@ const { showExcluded = false } = Astro.props
         client:load
         rows={showExcluded ? excludedRows : filteredRows}
         podcasts={showExcluded ? [] : newPodcasts}
+        showClassifyInfo={showExcluded}
       />
     </main>
     <script src="../scripts/refreshIfStale.ts"></script>
@@ -181,6 +182,11 @@ const { showExcluded = false } = Astro.props
             display: flex;
             align-items: baseline;
             gap: 0.5rem;
+
+            &.classify {
+              font-size: 0.85rem;
+              opacity: 0.7;
+            }
           }
 
           .domain {

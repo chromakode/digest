@@ -8,9 +8,11 @@ import Article, { type ContentWithChildren } from './Article'
 export default function ContentWithSearch({
   rows,
   podcasts,
+  showClassifyInfo,
 }: {
   rows: ContentWithChildren[]
   podcasts: ContentWithChildren[]
+  showClassifyInfo?: boolean
 }) {
   const [miniSearch, setMiniSearch] = useState<MiniSearch | null>(null)
   const [results, setResults] = useState<SearchResult[] | null>(null)
@@ -82,7 +84,6 @@ export default function ContentWithSearch({
           )}
         </>
       )}
-
       {displayRows
         .filter((r) => r !== latestDigest)
         .map(
@@ -91,6 +92,7 @@ export default function ContentWithSearch({
             title,
             contentTimestamp,
             contentSummary,
+            classifyResult,
             url,
             sourceId,
             sourceShortName,
@@ -103,11 +105,13 @@ export default function ContentWithSearch({
               title={title}
               contentTimestamp={contentTimestamp}
               contentSummary={contentSummary}
+              classifyResult={classifyResult}
               url={url}
               sourceId={sourceId}
               sourceShortName={sourceShortName}
               sourceURL={sourceURL}
               childContent={childContent}
+              showClassifyInfo={showClassifyInfo}
             />
           ),
         )}

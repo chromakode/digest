@@ -44,18 +44,45 @@ function Info({
   )
 }
 
-export default function Article(content: ContentWithChildren) {
+function ClassifyInfo({
+  classifyResult,
+}: {
+  classifyResult: string | undefined
+}) {
+  if (!classifyResult) {
+    return
+  }
+
+  const { scores }: { scores?: Record<string, number> } =
+    JSON.parse(classifyResult)
+
+  return (
+    <div className="info classify">
+      {Object.entries(scores ?? {}).map(([key, score]) => (
+        <span>
+          {key}: {score}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+export default function Article(
+  props: ContentWithChildren & { showClassifyInfo?: boolean },
+) {
   const {
     id,
     title,
     sourceId,
     contentSummary,
+    classifyResult,
     url: urlStr,
     childContent = [],
-  } = content
+    showClassifyInfo,
+  } = props
 
   const url = new URL(urlStr)
-  const showDomain = ![content, ...childContent].some(
+  const showDomain = ![props, ...childContent].some(
     (c) => c.sourceId.startsWith('podcast:') || c.sourceURL === urlStr,
   )
   const domain = url.host.replace(/^www\./, '')
@@ -98,9 +125,12 @@ export default function Article(content: ContentWithChildren) {
             </div>
           ))
         ) : (
-          <Info {...content} title="" />
+          <Info {...props} title="" />
         )}
       </div>
+      {showClassifyInfo && classifyResult && (
+        <ClassifyInfo classifyResult={classifyResult} />
+      )}
     </article>
   )
 }

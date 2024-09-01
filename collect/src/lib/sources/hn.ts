@@ -58,7 +58,7 @@ export class HNSource implements Source {
         }
 
         if (
-          commentCount > MIN_COMMENT_COUNT &&
+          commentCount >= MIN_COMMENT_COUNT &&
           sourceURL != null &&
           sourceURL != url &&
           !store.getFreshContentId({ url: sourceURL, delta: { hours: 3 } })

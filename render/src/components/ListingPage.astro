@@ -106,15 +106,15 @@ const { showExcluded = false } = Astro.props
   <body>
     <header>
       <h1><a href="/">Max's Digest</a></h1>
+      <a class="excluded-count" href="/excluded"
+        >{excludedRows.length} filtered</a
+      >
       <span class="updated">
         updated
         <Timestamp
           client:load
           dateTime={parseISO(lastUpdate.timestamp + 'Z')}
         /></span
-      >
-      <a class="excluded-count" href="/excluded"
-        >{excludedRows.length} filtered</a
       >
     </header>
     <main>

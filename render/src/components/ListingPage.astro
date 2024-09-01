@@ -106,16 +106,18 @@ const { showExcluded = false } = Astro.props
   <body>
     <header>
       <h1><a href="/">Max's Digest</a></h1>
-      <a class="excluded-count" href="/excluded"
-        >{excludedRows.length} filtered</a
-      >
-      <span class="updated">
-        updated
-        <Timestamp
-          client:load
-          dateTime={parseISO(lastUpdate.timestamp + 'Z')}
-        /></span
-      >
+      <div class="status">
+        <a class="excluded-count" href="/excluded"
+          >{excludedRows.length} filtered</a
+        >
+        <span class="updated">
+          updated
+          <Timestamp
+            client:load
+            dateTime={parseISO(lastUpdate.timestamp + 'Z')}
+          /></span
+        >
+      </div>
     </header>
     <main>
       <ContentWithSearch
@@ -191,11 +193,12 @@ const { showExcluded = false } = Astro.props
           .info {
             display: flex;
             align-items: baseline;
-            gap: 0.5rem;
+            gap: 0.25rem 0.5rem;
 
             &.classify {
               font-size: 0.85rem;
               opacity: 0.7;
+              flex-wrap: wrap;
             }
           }
 
@@ -278,6 +281,16 @@ const { showExcluded = false } = Astro.props
           align-items: baseline;
           gap: 1rem;
 
+          h1 {
+            flex-shrink: 0;
+          }
+
+          .status {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+          }
+
           .updated,
           .excluded-count {
             font-size: 0.9em;
@@ -307,6 +320,18 @@ const { showExcluded = false } = Astro.props
             box-sizing: content-box;
             padding: 1rem;
             font-size: 1.15rem;
+          }
+        }
+      }
+
+      @media (max-width: 450px) {
+        header {
+          align-items: center;
+
+          .status {
+            gap: 0;
+            justify-content: flex-end;
+            margin-top: 0.75rem;
           }
         }
       }

@@ -194,8 +194,8 @@ await fetchSource(
 const durationMs = performance.now() - startTime
 store.addSourceResult('system', { status: SourceStatus.SUCCESS, durationMs })
 
-queueWrite()
 await writeQueue.onIdle()
+await uploadDB(store, OUTPUT_DIR)
 store.close()
 
 await triggerSiteBuild()

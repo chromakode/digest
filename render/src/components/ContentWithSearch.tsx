@@ -4,8 +4,6 @@ import { miniSearchConfig } from '@shared/searchConfig'
 import type { ChangeEvent } from 'react'
 import { throttle } from 'lodash-es'
 import Article, { type ContentWithChildren } from './Article'
-import Timestamp from './Timestamp'
-import { parseISO } from 'date-fns'
 
 export default function ContentWithSearch({
   rows,

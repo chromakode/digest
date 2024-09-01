@@ -129,27 +129,43 @@ export class Store {
     since?: dateFns.Duration
   } = {}): ContentWithChildren[] {
     const rows = this.db.queryEntries<
-      ContentWithSummary & { classifyResult: string | null }
+      ContentWithChildren & {
+        childContent: string
+        classifyResult: string | null
+      }
     >(
-      'SELECT contentId as id, sourceId, url, hash, title, author, content.timestamp as timestamp, contentTimestamp, content, sourceURL, contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary USING (contentId) LEFT JOIN classify USING (contentId) WHERE unixepoch(content.timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
+      `SELECT content.contentId as id, content.sourceId, content.url, content.hash, content.title, content.author, content.timestamp as timestamp, content.contentTimestamp, content.content, content.sourceURL, summary.contentSummary, source.shortName as sourceShortName, json_group_array(json_object(
+        'id', childContent.contentId,
+        'url', childContent.url,
+        'title', childContent.title,
+        'timestamp', childContent.timestamp,
+        'contentTimestamp', childContent.contentTimestamp,
+        'sourceId', childContent.sourceId,
+        'sourceURL', childContent.sourceURL,
+        'contentSummary', childSummary.contentSummary,
+        'sourceShortName', source.shortName
+      )) FILTER (where childContent.contentId IS NOT NULL) as childContent
+      FROM content
+      LEFT JOIN source USING (sourceId)
+      LEFT JOIN summary USING (contentId)
+      LEFT JOIN classify USING (contentId)
+      LEFT JOIN content childContent ON childContent.parentContentId = content.contentId
+      LEFT JOIN summary childSummary ON childSummary.contentId = childContent.contentId
+      WHERE unixepoch(content.timestamp) > unixepoch(:threshold) AND content.parentContentId IS NULL
+      GROUP BY content.contentId
+      ORDER BY content.timestamp DESC`,
       {
         threshold: since ? dateFns.sub(Date.now(), since) : 0,
       },
     )
-    return rows.map((content) => {
-      const childContent = this.db.queryEntries<ContentWithSummary>(
-        'SELECT contentId as id, url, title, content.timestamp as timestamp, contentTimestamp, sourceId, sourceURL,contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary using (contentId) WHERE parentContentId = :parentContentId',
-        { parentContentId: content.id },
-      )
-      return {
-        ...content,
-        childContent,
-        classifyResult:
-          content.classifyResult != null
-            ? JSON.parse(content.classifyResult)
-            : null,
-      }
-    })
+    return rows.map((content) => ({
+      ...content,
+      childContent: JSON.parse(content.childContent),
+      classifyResult:
+        content.classifyResult != null
+          ? JSON.parse(content.classifyResult)
+          : null,
+    }))
   }
 
   getSummary(contentId: ContentId): string | null {

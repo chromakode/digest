@@ -134,7 +134,7 @@ export class Store {
         classifyResult: string | null
       }
     >(
-      `SELECT content.contentId as id, content.sourceId, content.url, content.hash, content.title, content.author, content.timestamp as timestamp, content.contentTimestamp, content.content, content.sourceURL, summary.contentSummary, source.shortName as sourceShortName, json_group_array(json_object(
+      `SELECT content.contentId as id, content.sourceId, content.url, content.hash, content.title, content.author, content.timestamp as timestamp, content.contentTimestamp, content.content, content.sourceURL, summary.contentSummary, classifyResult, source.shortName as sourceShortName, json_group_array(json_object(
         'id', childContent.contentId,
         'url', childContent.url,
         'title', childContent.title,

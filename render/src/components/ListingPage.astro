@@ -38,7 +38,8 @@ const rows = await db.all<Content & { childContent: string }>(
   LEFT JOIN summary childSummary ON childSummary.contentId = childContent.contentId
   WHERE content.timestamp > datetime('now', '-1 day') AND content.parentContentId IS NULL
   GROUP BY content.contentId
-  ORDER BY content.timestamp DESC`,
+  ORDER BY content.timestamp DESC
+  LIMIT 100`,
 )
 
 const parsedRows = rows.map((content) => ({

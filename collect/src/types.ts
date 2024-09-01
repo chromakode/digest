@@ -1,4 +1,5 @@
-import { RowObject, dateFns } from '../deps.ts'
+import { RowObject, dateFns, z } from '../deps.ts'
+import { ClassifySchema } from './lib/openai.ts'
 
 export type SourceId = string & { __brand: 'SourceId' }
 export type ContentId = string & { __brand: 'ContentId' }
@@ -28,6 +29,7 @@ export interface Content extends ContentData, RowObject {
 export interface ContentWithSummary extends Content {
   sourceShortName: string
   contentSummary: string
+  classifyResult?: z.infer<typeof ClassifySchema>
 }
 
 export interface ContentWithChildren extends ContentWithSummary {

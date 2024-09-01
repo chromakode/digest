@@ -8,6 +8,7 @@ import { AsyncDatabase } from 'promised-sqlite3'
 import ContentWithSearch from './ContentWithSearch'
 import Timestamp from './Timestamp'
 import type { Content } from './Article'
+import { filterContent } from '@shared/filterContent'
 import { isAfter, parseISO, subHours } from 'date-fns'
 import { partition } from 'lodash-es'
 
@@ -28,17 +29,7 @@ const rows = await db.all<Content>(`
 
 const [filteredRows, excludedRows] = partition(rows, (row) => {
   if (row.sourceId.startsWith('feed:') && row.classifyResult) {
-    const {
-      surprising,
-      current_event,
-      newsworthy,
-      world_impact,
-      fluff,
-      marketing,
-    } = JSON.parse(row.classifyResult).scores ?? {}
-    const pos = [surprising, current_event, newsworthy, world_impact]
-    const neg = [fluff, marketing]
-    return pos.some((s) => s >= 4) && !neg.some((s) => s >= 3)
+    return filterContent(JSON.parse(row.classifyResult))
   }
 
   return true

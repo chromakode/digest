@@ -128,8 +128,10 @@ export class Store {
   }: {
     since?: dateFns.Duration
   } = {}): ContentWithChildren[] {
-    const rows = this.db.queryEntries<ContentWithSummary>(
-      'SELECT contentId as id, sourceId, url, hash, title, author, content.timestamp as timestamp, contentTimestamp, content, sourceURL, contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary USING (contentId) WHERE unixepoch(content.timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
+    const rows = this.db.queryEntries<
+      ContentWithSummary & { classifyResult: string | null }
+    >(
+      'SELECT contentId as id, sourceId, url, hash, title, author, content.timestamp as timestamp, contentTimestamp, content, sourceURL, contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary USING (contentId) LEFT JOIN classify USING (contentId) WHERE unixepoch(content.timestamp) > unixepoch(:threshold) AND parentContentId IS NULL ORDER BY content.timestamp DESC',
       {
         threshold: since ? dateFns.sub(Date.now(), since) : 0,
       },
@@ -139,7 +141,14 @@ export class Store {
         'SELECT contentId as id, url, title, content.timestamp as timestamp, contentTimestamp, sourceId, sourceURL,contentSummary, shortName as sourceShortName FROM content LEFT JOIN source USING (sourceId) LEFT JOIN summary using (contentId) WHERE parentContentId = :parentContentId',
         { parentContentId: content.id },
       )
-      return { ...content, childContent }
+      return {
+        ...content,
+        childContent,
+        classifyResult:
+          content.classifyResult != null
+            ? JSON.parse(content.classifyResult)
+            : null,
+      }
     })
   }
 

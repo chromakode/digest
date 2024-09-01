@@ -36,5 +36,5 @@ export class PodcastSource extends FeedSource {
 
 export async function podcastsFromOPML(path: string): Promise<PodcastSource[]> {
   const feeds = await readOPML(path)
-  return feeds.map(({ slug, url }) => new PodcastSource(slug, url))
+  return feeds.map(({ name, url }) => new PodcastSource(name, url))
 }

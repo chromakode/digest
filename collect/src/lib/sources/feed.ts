@@ -18,20 +18,24 @@ const loadThreshold: dateFns.Duration = { days: 3 }
 export type RSSItem = Record<string, any> & RSSParser.Item
 
 export class FeedSource implements Source {
-  slug: string
+  name: string
   feedURL: string
+
+  get slug() {
+    return slug(this.name)
+  }
 
   get id() {
     return `feed:${this.slug}` as SourceId
   }
 
-  constructor(slug: string, url: string) {
-    this.slug = slug
+  constructor(name: string, url: string) {
+    this.name = name
     this.feedURL = url
   }
 
   async fetch(store: SourceStore) {
-    const { slug, feedURL } = this
+    const { name, slug, feedURL } = this
     const resp = await getFetchQueue(feedURL).add(() => {
       log.info('feed fetch', { slug, feedURL })
       return fetchWithUA(feedURL)
@@ -61,7 +65,7 @@ export class FeedSource implements Source {
       fetches.push(this.fetchItem(data, item, store))
     }
 
-    store.updateSource({ name: slug })
+    store.updateSource({ name })
 
     await Promise.all(fetches)
     return SourceStatus.SUCCESS
@@ -100,7 +104,7 @@ export class FeedSource implements Source {
 }
 
 export interface FeedInfo {
-  slug: string
+  name: string
   url: string
 }
 
@@ -111,7 +115,7 @@ export async function readOPML(path: string): Promise<FeedInfo[]> {
   // deno-lint-ignore no-explicit-any
   return (opmlData.opml as any).body.outline.outline.map(
     (el: Record<string, string>) => ({
-      slug: slug(el['@text']),
+      name: el['@text'],
       url: el['@xmlUrl'],
     }),
   )
@@ -119,5 +123,5 @@ export async function readOPML(path: string): Promise<FeedInfo[]> {
 
 export async function feedsFromOPML(path: string): Promise<FeedSource[]> {
   const feeds = await readOPML(path)
-  return feeds.map(({ slug, url }) => new FeedSource(slug, url))
+  return feeds.map(({ name, url }) => new FeedSource(name, url))
 }

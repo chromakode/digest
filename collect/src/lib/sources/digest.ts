@@ -11,7 +11,7 @@ import { llm } from '../openai.ts'
 const interval = 4 * 60 * 60 * 1000
 
 const summarizeDigestPrompt = (summaries: string) => `
-Given the following list of news items, summarize most important news into a single short paragraph. Include specific titles and link them to the url using markdown syntax, without bold or italic. Use active tense.
+Given the following list of news items, summarize most important news into a single short paragraph. Include specific titles and link them to the url using markdown syntax. Do not format with bold or italic. Use active tense.
 
 For example:
 

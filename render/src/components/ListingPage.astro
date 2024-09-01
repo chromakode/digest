@@ -4,7 +4,6 @@ import '@fontsource-variable/open-sans/wdth-italic.css'
 import openSansWoff2 from '@fontsource-variable/open-sans/files/open-sans-latin-wdth-normal.woff2?url'
 
 import { ViewTransitions } from 'astro:transitions'
-import { AsyncDatabase } from 'promised-sqlite3'
 import ContentWithSearch from './ContentWithSearch'
 import Timestamp from './Timestamp'
 import { type Content } from './Article'
@@ -12,12 +11,13 @@ import { filterContent } from '@shared/filterContent'
 import { isAfter, parseISO, subHours } from 'date-fns'
 import { partition } from 'lodash-es'
 import AutoUpdateBanner from './AutoUpdateBanner'
+import { getLastUpdateTimestamp, openDB } from 'src/dbUtils'
 
 interface Props {
   showExcluded?: boolean
 }
 
-const db = await AsyncDatabase.open(import.meta.env.DB_PATH ?? './digest.db')
+const db = await openDB()
 
 const rows = await db.all<Content & { childContent: string }>(
   `SELECT content.contentId as id, content.sourceId, content.url, content.hash, content.title, content.author, content.timestamp as timestamp, content.contentTimestamp, content.content, content.sourceURL, summary.contentSummary, classifyResult, source.shortName as sourceShortName, json_group_array(json_object(
@@ -80,9 +80,7 @@ const newPodcasts = rowsWithChildren.filter(
     isAfter(parseISO(contentTimestamp + 'Z'), newPodcastThreshold),
 )
 
-const lastUpdate = await db.get<{ timestamp: string }>(
-  'SELECT timestamp FROM updateLog WHERE sourceId = "system" ORDER BY timestamp DESC LIMIT 1',
-)
+const lastUpdate = await getLastUpdateTimestamp(db)
 
 const { showExcluded = false } = Astro.props
 ---
@@ -113,10 +111,7 @@ const { showExcluded = false } = Astro.props
         >
         <span class="updated">
           updated
-          <Timestamp
-            client:load
-            dateTime={parseISO(lastUpdate.timestamp + 'Z')}
-          /></span
+          <Timestamp client:load dateTime={parseISO(lastUpdate + 'Z')} /></span
         >
       </div>
     </header>

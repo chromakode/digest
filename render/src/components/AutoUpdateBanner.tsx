@@ -1,5 +1,5 @@
 import { navigate } from 'astro:transitions/client'
-import { addMinutes } from 'date-fns'
+import { isAfter } from 'date-fns'
 import { useCallback, useEffect, useState } from 'react'
 
 const REFRESH_INTERVAL_MIN = 15
@@ -10,22 +10,26 @@ export default function AutoUpdateBanner() {
 
   useEffect(() => {
     function checkCanUpdate() {
-      const now = Date.now()
-      const lastUpdateTime =
-        document.querySelector<HTMLTimeElement>('.updated time')?.dateTime
+      async function check() {
+        const now = Date.now()
+        const resp = await fetch('/update.json')
+        const updateData = await resp.json()
+        const lastUpdateTime = updateData.lastUpdate
 
-      if (
-        document.visibilityState === 'visible' &&
-        lastUpdateTime != null &&
-        now > addMinutes(lastUpdateTime, REFRESH_INTERVAL_MIN).getTime()
-      ) {
-        if (window.scrollY <= 100) {
-          setUpdating(true)
-          navigate('')
-        } else {
-          setCanUpdate(true)
+        if (
+          document.visibilityState === 'visible' &&
+          lastUpdateTime != null &&
+          isAfter(now, lastUpdateTime)
+        ) {
+          if (window.scrollY <= 100) {
+            setUpdating(true)
+            navigate('')
+          } else {
+            setCanUpdate(true)
+          }
         }
       }
+      check()
     }
 
     document.addEventListener('visibilitychange', checkCanUpdate)

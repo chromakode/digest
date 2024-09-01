@@ -61,7 +61,7 @@ export class FeedSource implements Source {
       fetches.push(this.fetchItem(data, item, store))
     }
 
-    store.updateSource({ name: rssData.title ?? slug })
+    store.updateSource({ name: slug })
 
     await Promise.all(fetches)
     return SourceStatus.SUCCESS

@@ -54,7 +54,7 @@ async function classify() {
 
   const contentBody = content.content.substring(0, 50000)
   const classification = await classifyContent(content.title, contentBody)
-  console.log(content.title, '\n')
+  console.log(content.id, ':', content.title, '\n')
   console.log(content.contentSummary)
   console.log(classification)
 }

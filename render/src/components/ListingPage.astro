@@ -11,6 +11,7 @@ import { type Content } from './Article'
 import { filterContent } from '@shared/filterContent'
 import { isAfter, parseISO, subHours } from 'date-fns'
 import { partition } from 'lodash-es'
+import AutoUpdateBanner from './AutoUpdateBanner'
 
 interface Props {
   showExcluded?: boolean
@@ -126,9 +127,9 @@ const { showExcluded = false } = Astro.props
         podcasts={showExcluded ? [] : newPodcasts}
         showClassifyInfo={showExcluded}
       />
+      <AutoUpdateBanner client:load />
     </main>
     <script src="../scripts/refreshIfStale.ts"></script>
-    <script src="../scripts/fastRenderTimestamps.ts"></script>
     <style>
       :root {
         --source-width: 12rem;
@@ -138,6 +139,7 @@ const { showExcluded = false } = Astro.props
         --color-link: blue;
         --accent: #f6f6f6;
         --accent-border: #333;
+        --update-bg: #ffb64f;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -147,6 +149,7 @@ const { showExcluded = false } = Astro.props
           --color-link: #7c7caa;
           --accent: #222;
           --accent-border: #333;
+          --update-bg: #cd852d;
         }
       }
 
@@ -322,6 +325,23 @@ const { showExcluded = false } = Astro.props
             font-size: 1.15rem;
           }
         }
+
+        .update-banner {
+          position: fixed;
+          left: 50%;
+          bottom: 16px;
+          height: 3rem;
+          padding: 0 32px;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--update-bg);
+          color: rgba(0, 0, 0, 0.75);
+          font-weight: 500;
+          border-radius: 8px;
+          text-decoration: none;
+        }
       }
 
       @media (max-width: 450px) {
@@ -332,6 +352,14 @@ const { showExcluded = false } = Astro.props
             gap: 0;
             justify-content: flex-end;
             margin-top: 0.75rem;
+          }
+        }
+
+        body {
+          .update-banner {
+            bottom: 8px;
+            width: calc(100% - 16px);
+            padding: 0;
           }
         }
       }

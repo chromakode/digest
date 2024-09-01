@@ -52,6 +52,12 @@ newsworthy: Whether the content would be considered important news.
 world_impact: Whether the content describes an event or information which is extremely important to the world.
 fluff: Rate whether the content is insubstantial or lacks importance.
 marketing: Whether the content is marketing a specific product or service.
+ragebait: Content intended to provoke drama or anger.
+clickbait: Deceptive or exaggerated title or claims.
+
+Also, please classify the content using the following text labels:
+
+category: The overall category for the content, or none.
 keywords: A list of important terms and topics for search.
 
 The content is as follows:
@@ -71,6 +77,8 @@ export const ClassifySchema = z.object({
     world_impact: z.number(),
     fluff: z.number(),
     marketing: z.number(),
+    ragebait: z.number(),
+    clickbait: z.number(),
   }),
   category: z
     .enum([

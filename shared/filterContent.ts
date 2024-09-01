@@ -6,8 +6,15 @@ export function filterContent(classifyResult: Record<string, any> | undefined) {
     world_impact,
     fluff,
     marketing,
+    ragebait,
+    clickbait,
   } = classifyResult?.scores ?? {}
   const pos = [surprising, current_event, newsworthy, world_impact]
   const neg = [fluff, marketing]
-  return pos.some((s) => s >= 4) && !neg.some((s) => s >= 3)
+  const bait = [ragebait, clickbait]
+  return (
+    pos.some((s) => s >= 4) &&
+    !neg.some((s) => s >= 3) &&
+    !bait.some((s) => s >= 3.5)
+  )
 }

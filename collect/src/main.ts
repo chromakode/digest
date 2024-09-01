@@ -1,4 +1,4 @@
-import { log, path } from '../deps.ts'
+import { dateFns, log, path } from '../deps.ts'
 import 'https://deno.land/std@0.224.0/dotenv/load.ts'
 
 import { HNSource } from './lib/sources/hn.ts'
@@ -13,7 +13,7 @@ import {
 } from './lib/openai.ts'
 import { Content, Source, SourceStatus } from './types.ts'
 import { initMinio } from './lib/minio.ts'
-import { DigestSource } from './lib/sources/digest.ts'
+import { DigestSource, digestIntervalMs } from './lib/sources/digest.ts'
 import { PQueue } from '../deps.ts'
 import { fetchWithUA } from './lib/fetch.ts'
 import { podcastsFromOPML } from './lib/sources/podcast.ts'
@@ -187,7 +187,9 @@ await summarizeAllMissing()
 await fetchSource(
   new DigestSource(
     store
-      .getContentWithChildSummaries()
+      .getContentWithChildSummaries({
+        since: { seconds: digestIntervalMs / 1000 },
+      })
       .filter((row) => filterContent(row.classifyResult)),
   ),
 )

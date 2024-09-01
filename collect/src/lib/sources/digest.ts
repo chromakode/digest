@@ -8,7 +8,7 @@ import {
 } from '../../types.ts'
 import { llm } from '../openai.ts'
 
-const interval = 4 * 60 * 60 * 1000
+export const digestIntervalMs = 4 * 60 * 60 * 1000
 
 const summarizeDigestPrompt = (summaries: string) => `
 Given the following list of news items, summarize most important news into a single short paragraph. Include specific titles and link them to the url using markdown syntax. Do not format with bold or italic. Use active tense.
@@ -33,14 +33,14 @@ export class DigestSource implements Source {
 
   async fetch(store: SourceStore) {
     const now = Date.now()
-    const digestIndex = Math.ceil(now / interval)
+    const digestIndex = Math.ceil(now / digestIntervalMs)
 
-    const digestBase = (digestIndex - 1) * interval
+    const digestBase = (digestIndex - 1) * digestIntervalMs
 
     // The latest digest should always cover at least a half interval of recent content.
     const digestStart = Math.min(
       digestBase,
-      dateFns.subMilliseconds(now, interval / 2).getTime(),
+      dateFns.subMilliseconds(now, digestIntervalMs / 2).getTime(),
     )
 
     const digestURL = `digest://${digestIndex}`

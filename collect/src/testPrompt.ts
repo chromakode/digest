@@ -7,19 +7,23 @@ import {
   summarizePrompt,
 } from './lib/openai.ts'
 import { Store } from './lib/storage.ts'
-import { Content, ContentWithSummary } from './types.ts'
+import { Content, ContentId, ContentWithSummary } from './types.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 
 const dbPath = path.join(OUTPUT_DIR, 'digest.db')
 const store = new Store(dbPath)
 
-async function summarize() {
-  const content = store.db.queryEntries<Content>(
-    'SELECT contentId as id, title, content FROM content WHERE (SELECT COUNT(1) FROM content c2 WHERE c2.parentContentId = content.contentId) > 0 LIMIT 1',
-  )[0]
-
-  assert(content)
+async function summarize(contentId?: ContentId) {
+  const content =
+    contentId != null
+      ? store.db.queryEntries<Content>(
+          `SELECT contentId as id, title, content FROM content WHERE contentId = :contentId`,
+          { contentId },
+        )[0]
+      : store.db.queryEntries<Content>(
+          `SELECT content.contentId as id, content.title, content.content FROM content LEFT JOIN content childContent ON (childContent.parentContentId = content.contentId) WHERE childContent.contentId IS NOT NULL ORDER BY RANDOM() LIMIT 1`,
+        )[0]
 
   const contentBody = content.content.substring(0, 50000)
   const contentSummary = await llm(summarizePrompt(content.title, contentBody))
@@ -38,17 +42,23 @@ async function summarize() {
     ),
   )
 
-  console.log(content.title, '\n')
+  console.log(content.id, ':', content.title, '\n')
   console.log(contentSummary)
 
   console.log('\nfrom', childContent.sourceId)
   console.log(childContentSummary)
 }
 
-async function classify() {
-  const content = store.db.queryEntries<ContentWithSummary>(
-    'SELECT contentId as id, title, content, contentSummary FROM content LEFT JOIN summary USING (contentId) WHERE parentContentId IS NULL ORDER BY RANDOM() LIMIT 1',
-  )[0]
+async function classify(contentId?: ContentId) {
+  const content =
+    contentId != null
+      ? store.db.queryEntries<ContentWithSummary>(
+          'SELECT contentId as id, title, content, contentSummary FROM content LEFT JOIN summary USING (contentId) WHERE contentId = :contentId',
+          { contentId },
+        )[0]
+      : store.db.queryEntries<ContentWithSummary>(
+          'SELECT contentId as id, title, content, contentSummary FROM content LEFT JOIN summary USING (contentId) WHERE parentContentId IS NULL ORDER BY RANDOM() LIMIT 1',
+        )[0]
 
   assert(content)
 
@@ -59,7 +69,10 @@ async function classify() {
   console.log(classification)
 }
 
-const args = parseArgs(Deno.args)
+const args = parseArgs(Deno.args, { string: 'content-id' })
 const commands = new Map(Object.entries({ summarize, classify }))
 const commandName = String(args._[0])
-commands.get(commandName)?.()
+const contentId = args['content-id']
+  ? (args['content-id'] as ContentId)
+  : undefined
+commands.get(commandName)?.(contentId)

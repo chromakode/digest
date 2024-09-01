@@ -38,8 +38,7 @@ const rows = await db.all<Content & { childContent: string }>(
   LEFT JOIN summary childSummary ON childSummary.contentId = childContent.contentId
   WHERE content.timestamp > datetime('now', '-1 day') AND content.parentContentId IS NULL
   GROUP BY content.contentId
-  ORDER BY content.timestamp DESC
-  LIMIT 100`,
+  ORDER BY content.timestamp DESC`,
 )
 
 const parsedRows = rows.map((content) => ({
@@ -123,7 +122,7 @@ const { showExcluded = false } = Astro.props
     <main>
       <ContentWithSearch
         client:load
-        rows={showExcluded ? excludedRows : filteredRows}
+        rows={showExcluded ? excludedRows : filteredRows.slice(0, 100)}
         podcasts={showExcluded ? [] : newPodcasts}
         showClassifyInfo={showExcluded}
       />

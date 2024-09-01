@@ -6,7 +6,7 @@ const REFRESH_INTERVAL_MIN = 15
 document.addEventListener('visibilitychange', () => {
   const now = Date.now()
   const lastUpdateTime =
-    document.querySelector<HTMLTimeElement>('.updated')?.dateTime
+    document.querySelector<HTMLTimeElement>('.updated time')?.dateTime
 
   if (
     document.visibilityState === 'visible' &&

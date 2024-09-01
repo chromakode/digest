@@ -19,13 +19,12 @@ export type ContentWithChildren = Content & { childContent?: Content[] }
 
 function Info({
   title,
-  sourceId,
   sourceShortName,
   sourceURL,
   contentTimestamp,
 }: Pick<
   ContentWithChildren,
-  'title' | 'sourceShortName' | 'sourceId' | 'sourceURL' | 'contentTimestamp'
+  'title' | 'sourceShortName' | 'sourceURL' | 'contentTimestamp'
 >) {
   return (
     <div className="info">

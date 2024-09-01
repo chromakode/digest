@@ -4,14 +4,15 @@ RUN mkdir /output
 RUN chown deno:deno /output
 ENV OUTPUT_DIR /output
 
-WORKDIR /app
+WORKDIR /app/collect
 
 USER deno
 
-COPY deps.ts .
+COPY collect/deps.ts deps.ts
 RUN deno cache deps.ts
 
-COPY . .
+COPY collect .
+COPY shared ../shared
 RUN deno cache src/main.ts
 
 CMD ["run", "--allow-net", "--allow-env", "--allow-read=/app,/output", "--allow-write=/output", "src/main.ts"]

@@ -10,8 +10,11 @@ export function initMinio() {
       fetchDB() {
         log.warn('MINIO_ENDPOINT unset: skipping DB fetch')
       },
-      uploadDB() {
-        log.warn('MINIO_ENDPOINT unset: skipping DB upload')
+      uploadDBFile() {
+        log.warn('MINIO_ENDPOINT unset: skipping DB file upload')
+      },
+      uploadDBSnapshot() {
+        log.warn('MINIO_ENDPOINT unset: skipping DB snapshot upload')
       },
     }
   }
@@ -45,11 +48,8 @@ export function initMinio() {
     log.info('fetched digest.db from minio')
   }
 
-  async function uploadDB(store: Store, outputDir: string) {
+  async function uploadDBFile(dbPath: string) {
     log.info('uploading digest.db to minio')
-
-    const dbPath = await Deno.makeTempFile({ dir: outputDir, suffix: '.db' })
-    await store.db.query('VACUUM INTO :dbPath', { dbPath })
 
     const gzPath = dbPath + '.gz'
     const gzFile = await Deno.open(gzPath, {
@@ -57,20 +57,33 @@ export function initMinio() {
       create: true,
     })
 
-    const inFile = await Deno.open(dbPath)
-    await inFile.readable
-      .pipeThrough(new CompressionStream('gzip'))
-      .pipeTo(gzFile.writable)
+    try {
+      const inFile = await Deno.open(dbPath)
+      await inFile.readable
+        .pipeThrough(new CompressionStream('gzip'))
+        .pipeTo(gzFile.writable)
 
-    await Deno.remove(dbPath)
-
-    await minioClient.fPutObject(minioBucket, 'digest.db', gzPath, {
-      'Content-Type': 'application/x-sqlite3',
-      'Content-Encoding': 'gzip',
-    })
+      await minioClient.fPutObject(minioBucket, 'digest.db', gzPath, {
+        'Content-Type': 'application/x-sqlite3',
+        'Content-Encoding': 'gzip',
+      })
+    } finally {
+      await Deno.remove(gzPath)
+    }
 
     log.info('uploaded digest.db to minio')
   }
 
-  return { fetchDB, uploadDB }
+  async function uploadDBSnapshot(store: Store, outputDir: string) {
+    const dbPath = await Deno.makeTempFile({ dir: outputDir, suffix: '.db' })
+
+    try {
+      await store.db.query('VACUUM INTO :dbPath', { dbPath })
+      await uploadDBFile(dbPath)
+    } finally {
+      await Deno.remove(dbPath)
+    }
+  }
+
+  return { fetchDB, uploadDBFile, uploadDBSnapshot }
 }

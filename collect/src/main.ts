@@ -33,7 +33,7 @@ log.setup({
   },
 })
 
-const { fetchDB, uploadDB } = initMinio()
+const { fetchDB, uploadDBFile, uploadDBSnapshot } = initMinio()
 
 Deno.mkdir(OUTPUT_DIR, { recursive: true })
 const dbPath = path.join(OUTPUT_DIR, 'digest.db')
@@ -46,13 +46,14 @@ const writeQueue = new PQueue({
   intervalCap: 1,
 })
 
+// Periodically upload snapshots of the DB so if the job crashes after some long running transcriptions, progress isn't lost.
 function queueWrite() {
   if (writeQueue.size > 0) {
     return
   }
 
   writeQueue.add(async () => {
-    await uploadDB(store, OUTPUT_DIR)
+    await uploadDBSnapshot(store, OUTPUT_DIR)
   })
 }
 
@@ -195,8 +196,9 @@ const durationMs = performance.now() - startTime
 store.addSourceResult('system', { status: SourceStatus.SUCCESS, durationMs })
 
 await writeQueue.onIdle()
-await uploadDB(store, OUTPUT_DIR)
 store.close()
+
+await uploadDBFile(dbPath)
 
 await triggerSiteBuild()
 

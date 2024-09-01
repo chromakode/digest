@@ -5,11 +5,7 @@ import { HNSource } from './lib/sources/hn.ts'
 import { feedsFromOPML } from './lib/sources/feed.ts'
 import { TildesSource } from './lib/sources/tildes.ts'
 import { Store } from './lib/storage.ts'
-import {
-  summarize,
-  summarizeChildPrompt,
-  summarizePrompt,
-} from './lib/openai.ts'
+import { llm, summarizeChildPrompt, summarizePrompt } from './lib/openai.ts'
 import { Content, Source, SourceStatus } from './types.ts'
 import { initMinio } from './lib/minio.ts'
 import { DigestSource } from './lib/sources/digest.ts'
@@ -76,7 +72,7 @@ async function fetchSummary(content: Content) {
 
   let contentSummary
   try {
-    contentSummary = await summarize(prompt)
+    contentSummary = await llm(prompt)
   } catch (err) {
     log.error('error fetching summary', {
       contentId: content.id,
@@ -85,6 +81,11 @@ async function fetchSummary(content: Content) {
     })
     return
   }
+
+  if (!contentSummary) {
+    return
+  }
+
   store.addSummary(content.id, { contentSummary })
 }
 

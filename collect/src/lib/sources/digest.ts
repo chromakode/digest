@@ -6,7 +6,7 @@ import {
   SourceStatus,
   SourceStore,
 } from '../../types.ts'
-import { summarize } from '../openai.ts'
+import { llm } from '../openai.ts'
 
 const interval = 4 * 60 * 60 * 1000
 
@@ -68,7 +68,7 @@ export class DigestSource implements Source {
       return SourceStatus.SUCCESS
     }
 
-    const contentSummary = await summarize(summarizeDigestPrompt(prompt))
+    const contentSummary = await llm(summarizeDigestPrompt(prompt))
 
     const { id } = await store.addContent({
       url: digestURL,
@@ -76,7 +76,10 @@ export class DigestSource implements Source {
       title: 'Digest',
       content: '',
     })
-    await store.addSummary(id, { contentSummary })
+
+    if (contentSummary) {
+      await store.addSummary(id, { contentSummary })
+    }
 
     store.updateSource({ name: 'Digest', shortName: 'Digest' })
 

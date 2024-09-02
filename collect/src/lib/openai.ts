@@ -54,6 +54,7 @@ fluff: Rate whether the content is insubstantial or lacks importance.
 marketing: Whether the content is marketing a specific product or service.
 ragebait: Content intended to provoke drama, hate, or anger.
 clickbait: Deceptive or exaggerated title or claims.
+disturbing: Gory, disturbing, or misanthropic content.
 
 Also, please classify the content using the following text labels:
 
@@ -79,6 +80,7 @@ export const ClassifySchema = z.object({
     marketing: z.number(),
     ragebait: z.number(),
     clickbait: z.number(),
+    disturbing: z.number(),
   }),
   category: z
     .enum([

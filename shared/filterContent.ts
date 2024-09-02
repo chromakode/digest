@@ -8,6 +8,7 @@ export function filterContent(classifyResult: Record<string, any> | undefined) {
     marketing,
     ragebait,
     clickbait,
+    disturbing,
     category,
   } = classifyResult?.scores ?? {}
   const pos = [surprising, current_event, newsworthy, world_impact]
@@ -17,6 +18,7 @@ export function filterContent(classifyResult: Record<string, any> | undefined) {
     pos.some((s) => s >= 4) &&
     !neg.some((s) => s >= 3) &&
     !bait.some((s) => s >= 3.5) &&
-    !(category === 'sports' && world_impact < 3)
+    !(disturbing > 3 && world_impact < 3) &&
+    !(category === 'sports' && world_impact <= 3)
   )
 }

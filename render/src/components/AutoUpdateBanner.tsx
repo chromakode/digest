@@ -16,17 +16,15 @@ export default function AutoUpdateBanner() {
         const updateData = await resp.json()
         const lastUpdateTime = updateData.lastUpdate
 
-        if (
+        const updateAvailable =
           document.visibilityState === 'visible' &&
           lastUpdateTime != null &&
-          isAfter(now, lastUpdateTime)
-        ) {
-          if (window.scrollY <= 100) {
-            setUpdating(true)
-            navigate('')
-          } else {
-            setCanUpdate(true)
-          }
+          isAfter(lastUpdateTime, now)
+
+        setCanUpdate(updateAvailable)
+        if (updateAvailable && window.scrollY <= 100) {
+          setUpdating(true)
+          navigate('')
         }
       }
       check()

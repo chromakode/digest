@@ -1,7 +1,9 @@
 import Markdown from 'react-markdown'
 import Timestamp from './Timestamp'
 import rehypeSanitize from 'rehype-sanitize'
+import rehypeExternalLinks from 'rehype-external-links'
 import { parseISO } from 'date-fns'
+import type { PluggableList } from 'node_modules/react-markdown/lib'
 
 export interface Content {
   id: string
@@ -16,6 +18,11 @@ export interface Content {
 }
 
 export type ContentWithChildren = Content & { childContent?: Content[] }
+
+const rehypePlugins: PluggableList = [
+  rehypeSanitize,
+  [rehypeExternalLinks, { target: '_blank', rel: ['nofollow'] }],
+]
 
 function Info({
   title,
@@ -83,7 +90,7 @@ export default function Article(
     return (
       <article id={`content-${id}`}>
         <div className="content">
-          <Markdown className="summary" rehypePlugins={[rehypeSanitize]}>
+          <Markdown className="summary" rehypePlugins={rehypePlugins}>
             {contentSummary}
           </Markdown>
         </div>
@@ -95,14 +102,21 @@ export default function Article(
     <article id={`content-${id}`}>
       <div className="content">
         <h2>
-          <a href={urlStr}>{title}</a>
+          <a href={urlStr} target="_blank" rel="nofollow">
+            {title}
+          </a>
           {showDomain && (
-            <a className="domain" href={url.origin}>
+            <a
+              className="domain"
+              href={url.origin}
+              target="_blank"
+              rel="nofollow"
+            >
               {domain}
             </a>
           )}
         </h2>
-        <Markdown className="summary" rehypePlugins={[rehypeSanitize]}>
+        <Markdown className="summary" rehypePlugins={rehypePlugins}>
           {contentSummary ?? ''}
         </Markdown>
       </div>
@@ -111,7 +125,7 @@ export default function Article(
           childContent.map((child: Content) => (
             <div className="child" key={child.id}>
               <Info {...child} />
-              <Markdown className="summary" rehypePlugins={[rehypeSanitize]}>
+              <Markdown className="summary" rehypePlugins={rehypePlugins}>
                 {child.contentSummary ?? ''}
               </Markdown>
             </div>

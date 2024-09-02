@@ -52,7 +52,7 @@ newsworthy: Whether the content would be considered important news.
 world_impact: Whether the content describes an event or information which is extremely important to the world.
 fluff: Rate whether the content is insubstantial or lacks importance.
 marketing: Whether the content is marketing a specific product or service.
-ragebait: Content intended to provoke drama or anger.
+ragebait: Content intended to provoke drama, hate, or anger.
 clickbait: Deceptive or exaggerated title or claims.
 
 Also, please classify the content using the following text labels:

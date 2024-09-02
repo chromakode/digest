@@ -1,0 +1,18 @@
+{
+  "short_name": "Max's Digest",
+  "name": "Max's Digest",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "id": "/?source=pwa",
+  "start_url": "/?source=pwa",
+  "background_color": "#ffffff",
+  "display": "minimal-ui",
+  "scope": "/",
+  "theme_color": "#ffffff",
+  "description": "A digest of recent news stories"
+}

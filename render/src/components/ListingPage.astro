@@ -99,6 +99,17 @@ const { showExcluded = false } = Astro.props
       href={openSansWoff2}
       crossorigin="anonymous"
     />
+    <link rel="manifest" href="/manifest.json" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="white"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#111010"
+    />
     <title>Max's Digest</title>
     <ViewTransitions />
   </head>

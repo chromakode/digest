@@ -1,8 +1,9 @@
 import { navigate } from 'astro:transitions/client'
-import { isAfter } from 'date-fns'
+import { isAfter, secondsToMilliseconds } from 'date-fns'
+import { throttle } from 'lodash-es'
 import { useCallback, useEffect, useState } from 'react'
 
-const REFRESH_INTERVAL_MIN = 15
+const checkIntervalSeconds = 60
 
 export default function AutoUpdateBanner() {
   const [canUpdate, setCanUpdate] = useState(false)
@@ -30,10 +31,17 @@ export default function AutoUpdateBanner() {
       check()
     }
 
-    document.addEventListener('visibilitychange', checkCanUpdate)
+    const throttledCheck = throttle(checkCanUpdate, secondsToMilliseconds(5))
+
+    const interval = setInterval(
+      throttledCheck,
+      secondsToMilliseconds(checkIntervalSeconds),
+    )
+    document.addEventListener('visibilitychange', throttledCheck)
 
     return () => {
-      document.removeEventListener('visibilitychange', checkCanUpdate)
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', throttledCheck)
     }
   }, [])
 

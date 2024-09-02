@@ -11,7 +11,7 @@
   "id": "/?source=pwa",
   "start_url": "/?source=pwa",
   "background_color": "#ffffff",
-  "display": "minimal-ui",
+  "display": "standalone",
   "scope": "/",
   "theme_color": "#ffffff",
   "description": "A digest of recent news stories"

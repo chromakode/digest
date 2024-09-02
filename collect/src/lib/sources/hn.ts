@@ -37,7 +37,7 @@ export class HNSource implements Source {
       const contentTimestamp = tryDate(timeEl?.getAttribute('title') + 'Z')
 
       const commentsEl = el.nextElementSibling?.querySelector(
-        '.subline a:last-child',
+        '.subline > a:last-child',
       )
       const commentCountText = commentsEl?.textContent.match(/^\d+/)?.[0]
       const commentCount =

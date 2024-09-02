@@ -44,12 +44,12 @@ ${content}
 
 export const classifyPrompt = (title: string, content: string) =>
   `
-Please classify the following content by scoring the following attributes as a floating point number between 1 and 5.
+Please classify the following article by scoring the following as a floating point number between 1 and 5:
 
 surprising: How surprising or unusual the content is.
 current_event: Whether the content describes and important and recent current event.
 newsworthy: Whether the content would be considered important news.
-world_impact: Whether the content describes an event or information which is extremely important to the world.
+world_impact: News story with a significant global impact to a large number of people. 5 would be an emergency that impacts multiple countries and millions of people. Lower score for local news specific to a single person, state, or country. Lower score for human interest stories.
 fluff: Rate whether the content is insubstantial or lacks importance.
 marketing: Whether the content is marketing a specific product or service.
 ragebait: Content intended to provoke drama, hate, or anger.

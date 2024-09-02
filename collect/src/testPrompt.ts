@@ -8,6 +8,8 @@ import {
 } from './lib/openai.ts'
 import { Store } from './lib/storage.ts'
 import { Content, ContentId, ContentWithSummary } from './types.ts'
+import { createDigestPrompt, digestIntervalMs } from './lib/sources/digest.ts'
+import { filterContent } from '@shared/filterContent.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 
@@ -69,8 +71,24 @@ async function classify(contentId?: ContentId) {
   console.log(classification)
 }
 
+async function digest() {
+  const contentToDigest = store
+    .getContentWithChildSummaries({
+      since: { seconds: digestIntervalMs / 1000 },
+    })
+    .filter((row) => filterContent(row.classifyResult))
+
+  const { prompt } = await createDigestPrompt(contentToDigest)
+  if (prompt == null) {
+    console.log('Nothing recent enough to digest')
+    return
+  }
+  const contentSummary = await llm(prompt)
+  console.log(contentSummary)
+}
+
 const args = parseArgs(Deno.args, { string: 'content-id' })
-const commands = new Map(Object.entries({ summarize, classify }))
+const commands = new Map(Object.entries({ summarize, classify, digest }))
 const commandName = String(args._[0])
 const contentId = args['content-id']
   ? (args['content-id'] as ContentId)

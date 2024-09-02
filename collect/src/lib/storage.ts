@@ -274,7 +274,7 @@ export class Store {
 
   withSource(
     sourceId: SourceId,
-    { onContent }: { onContent: (data: Content) => Promise<void> },
+    { onContent }: { onContent: (data: Content) => Promise<void> | void },
   ): SourceStore {
     return {
       log: (text: string) => this.log(sourceId, text),

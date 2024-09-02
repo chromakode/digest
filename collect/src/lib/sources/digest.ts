@@ -23,6 +23,46 @@ News items:
 ${summaries}
 `
 
+export async function createDigestPrompt(content: ContentWithChildren[]) {
+  const now = Date.now()
+  const digestIndex = Math.ceil(now / digestIntervalMs)
+
+  const digestBase = (digestIndex - 1) * digestIntervalMs
+
+  // The latest digest should always cover at least a half interval of recent content.
+  const digestStart = Math.min(
+    digestBase,
+    dateFns.subMilliseconds(now, digestIntervalMs / 2).getTime(),
+  )
+
+  const digestURL = `digest://${digestIndex}`
+
+  const digestContent = content.filter(
+    ({ timestamp }) => new Date(timestamp + 'Z').getTime() > digestStart,
+  )
+
+  if (!digestContent.length) {
+    return { digestURL, hash: null, prompt: null }
+  }
+
+  const contentSummaries = digestContent
+    .map(({ title, contentSummary, url, childContent }) => {
+      const comments = childContent.map((c) => c.contentSummary).join('\n')
+      return `${url} ${title}: ${contentSummary}\n${comments} `
+    })
+    .join('\n\n')
+
+  const prompt = summarizeDigestPrompt(contentSummaries)
+
+  const hashBuffer = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(prompt),
+  )
+  const hash = encodeBase64(hashBuffer)
+
+  return { digestURL, hash, prompt }
+}
+
 export class DigestSource implements Source {
   latestContent: ContentWithChildren[]
   static id = 'digest' as SourceId
@@ -33,37 +73,12 @@ export class DigestSource implements Source {
   }
 
   async fetch(store: SourceStore) {
-    const now = Date.now()
-    const digestIndex = Math.ceil(now / digestIntervalMs)
-
-    const digestBase = (digestIndex - 1) * digestIntervalMs
-
-    // The latest digest should always cover at least a half interval of recent content.
-    const digestStart = Math.min(
-      digestBase,
-      dateFns.subMilliseconds(now, digestIntervalMs / 2).getTime(),
+    const { digestURL, hash, prompt } = await createDigestPrompt(
+      this.latestContent,
     )
-
-    const digestURL = `digest://${digestIndex}`
-
-    const digestContent = this.latestContent.filter(
-      ({ timestamp }) => new Date(timestamp + 'Z').getTime() > digestStart,
-    )
-    const contentSummaries = digestContent
-      .map(({ title, contentSummary, url, childContent }) => {
-        const comments = childContent.map((c) => c.contentSummary).join('\n')
-        return `${url} ${title}: ${contentSummary}\n${comments} `
-      })
-      .join('\n\n')
-    const prompt = summarizeDigestPrompt(contentSummaries)
-
-    const hashBuffer = await crypto.subtle.digest(
-      'SHA-256',
-      new TextEncoder().encode(prompt),
-    )
-    const hash = encodeBase64(hashBuffer)
 
     if (
+      prompt == null ||
       store.getFreshContentId({ url: digestURL, hash, delta: { years: 100 } })
     ) {
       return SourceStatus.SUCCESS

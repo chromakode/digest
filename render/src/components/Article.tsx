@@ -21,7 +21,7 @@ export type ContentWithChildren = Content & { childContent?: Content[] }
 
 const rehypePlugins: PluggableList = [
   rehypeSanitize,
-  [rehypeExternalLinks, { target: '_blank', rel: ['nofollow'] }],
+  [rehypeExternalLinks, { rel: ['nofollow'] }],
 ]
 
 function Info({
@@ -102,16 +102,11 @@ export default function Article(
     <article id={`content-${id}`}>
       <div className="content">
         <h2>
-          <a href={urlStr} target="_blank" rel="nofollow">
+          <a href={urlStr} rel="nofollow">
             {title}
           </a>
           {showDomain && (
-            <a
-              className="domain"
-              href={url.origin}
-              target="_blank"
-              rel="nofollow"
-            >
+            <a className="domain" href={url.origin} rel="nofollow">
               {domain}
             </a>
           )}

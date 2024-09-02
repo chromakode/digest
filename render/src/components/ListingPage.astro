@@ -106,12 +106,12 @@ const { showExcluded = false } = Astro.props
     <header>
       <h1><a href="/">Max's Digest</a></h1>
       <div class="status">
-        <a class="excluded-count" href="/excluded"
-          >{excludedRows.length} filtered</a
-        >
         <span class="updated">
           updated
           <Timestamp client:load dateTime={parseISO(lastUpdate + 'Z')} /></span
+        >
+        <a class="excluded-count" href="/excluded"
+          >{excludedRows.length} filtered</a
         >
       </div>
     </header>
@@ -284,9 +284,11 @@ const { showExcluded = false } = Astro.props
           }
 
           .status {
+            flex: 1;
             display: flex;
-            gap: 1rem;
+            gap: 0 1rem;
             flex-wrap: wrap;
+            justify-content: space-between;
           }
 
           .updated,
@@ -339,13 +341,14 @@ const { showExcluded = false } = Astro.props
         }
       }
 
-      @media (max-width: 450px) {
+      @media (max-width: 500px) {
         header {
           align-items: center;
 
           .status {
+            flex-direction: column;
             gap: 0;
-            justify-content: flex-end;
+            align-items: flex-end;
             margin-top: 0.75rem;
           }
         }

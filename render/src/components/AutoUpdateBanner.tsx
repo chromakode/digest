@@ -40,10 +40,12 @@ export default function AutoUpdateBanner() {
       secondsToMilliseconds(checkIntervalSeconds),
     )
     document.addEventListener('visibilitychange', throttledCheck)
+    window.addEventListener('focus', throttledCheck)
 
     return () => {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', throttledCheck)
+      window.removeEventListener('focus', throttledCheck)
     }
   }, [])
 

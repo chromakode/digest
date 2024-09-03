@@ -53,7 +53,7 @@ export class TildesSource implements Source {
       const contentTimestamp = tryDate(timeEl?.getAttribute('datetime'))
 
       const commentsEl = el.querySelector('.topic-info-comments a')
-      const commentCountText = commentsEl?.textContent.match(/^\d+/)?.[0]
+      const commentCountText = commentsEl?.textContent.trim().match(/^\d+/)?.[0]
       const commentCount =
         commentCountText != null ? parseInt(commentCountText) : 0
       const sourceURL = sanitizeTildesURL(

@@ -46,14 +46,13 @@ function Info({
 function ClassifyInfo({
   classifyResult,
 }: {
-  classifyResult: string | undefined
+  classifyResult: Record<string, any> | undefined
 }) {
   if (!classifyResult) {
     return
   }
 
-  const { scores }: { scores?: Record<string, number> } =
-    JSON.parse(classifyResult)
+  const { scores }: { scores?: Record<string, number> } = classifyResult
 
   return (
     <div className="info classify">

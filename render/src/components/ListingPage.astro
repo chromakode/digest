@@ -48,7 +48,7 @@ const parsedRows = rows.map((content) => ({
 }))
 
 const [filteredRows, excludedRows] = partition(parsedRows, (row) => {
-  if (row.sourceId !== 'digest' && row.classifyResult) {
+  if (row.classifyResult) {
     return filterContent(row.sourceId, JSON.parse(row.classifyResult))
   }
 

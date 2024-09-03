@@ -2,6 +2,10 @@ export function filterContent(
   sourceId: string,
   classifyResult: Record<string, any> | undefined,
 ) {
+  if (sourceId === 'digest') {
+    return true
+  }
+
   const {
     surprising,
     current_event,

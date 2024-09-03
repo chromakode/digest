@@ -76,7 +76,7 @@ async function digest() {
     .getContentWithChildSummaries({
       since: { seconds: digestIntervalMs / 1000 },
     })
-    .filter((row) => filterContent(row.classifyResult))
+    .filter((row) => filterContent(row.sourceId, row.classifyResult))
 
   const { prompt } = await createDigestPrompt(contentToDigest)
   if (prompt == null) {

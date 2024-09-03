@@ -211,7 +211,7 @@ export class Store {
   getFreshContentId({
     url,
     hash,
-    delta = { days: 3 },
+    delta = { days: 7 },
   }: ContentFreshQuery): ContentId | null {
     const params: Record<string, string> = {
       threshold: dateFns.sub(Date.now(), delta).toISOString(),

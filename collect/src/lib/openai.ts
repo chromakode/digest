@@ -54,12 +54,14 @@ fluff: Rate whether the content is insubstantial or lacks importance.
 marketing: Whether the content is marketing a specific product or service.
 ragebait: Content intended to provoke drama, hate, or anger.
 clickbait: Deceptive or exaggerated title or claims.
+vague_title: Score 5 if the main topic of the content is not in the title.
 disturbing: Gory, disturbing, or misanthropic content.
 
 Also, please classify the content using the following text labels:
 
 category: The overall category for the content, or none.
 keywords: A list of important terms and topics for search.
+title: Write a new title for the story based on the content. Use specific terms from the article. Be concise. Use direct, present tense, declarative language. Use sentence case.
 
 The content is as follows:
 
@@ -80,6 +82,7 @@ export const ClassifySchema = z.object({
     marketing: z.number(),
     ragebait: z.number(),
     clickbait: z.number(),
+    vague_title: z.number(),
     disturbing: z.number(),
   }),
   category: z
@@ -94,6 +97,7 @@ export const ClassifySchema = z.object({
     ])
     .nullable(),
   keywords: z.array(z.string()),
+  title: z.string(),
 })
 
 function callOpenAI<T>(

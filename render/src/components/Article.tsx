@@ -10,7 +10,7 @@ export interface Content {
   title: string
   contentTimestamp: string
   contentSummary: string
-  classifyResult?: string
+  classifyResult?: Record<string, any>
   url: string
   sourceId: string
   sourceShortName: string
@@ -98,12 +98,17 @@ export default function Article(
     )
   }
 
+  const shouldRewordTitle =
+    classifyResult?.scores?.vague_title >= 3 ||
+    classifyResult?.scores?.clickbait >= 3
+  const rewordedTitle = classifyResult?.title
+
   return (
     <article id={`content-${id}`}>
       <div className="content">
         <h2>
           <a href={urlStr} rel="nofollow">
-            {title}
+            {shouldRewordTitle ? `${rewordedTitle} (retitled)` : title}
           </a>
           {showDomain && (
             <a className="domain" href={url.origin} rel="nofollow">

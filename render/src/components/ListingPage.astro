@@ -19,7 +19,9 @@ interface Props {
 
 const db = await openDB()
 
-const rows = await db.all<Content & { childContent: string }>(
+const rows = await db.all<
+  Content & { childContent: string; classifyResult: string }
+>(
   `SELECT content.contentId as id, content.sourceId, content.url, content.hash, content.title, content.author, content.timestamp as timestamp, content.contentTimestamp, content.content, content.sourceURL, summary.contentSummary, classifyResult, source.shortName as sourceShortName, json_group_array(json_object(
     'id', childContent.contentId,
     'url', childContent.url,
@@ -45,11 +47,13 @@ const rows = await db.all<Content & { childContent: string }>(
 const parsedRows = rows.map((content) => ({
   ...content,
   childContent: JSON.parse(content.childContent),
+  classifyResult:
+    content.classifyResult != null ? JSON.parse(content.classifyResult) : null,
 }))
 
 const [filteredRows, excludedRows] = partition(parsedRows, (row) => {
   if (row.classifyResult) {
-    return filterContent(row.sourceId, JSON.parse(row.classifyResult))
+    return filterContent(row.sourceId, row.classifyResult)
   }
 
   return true

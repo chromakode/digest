@@ -12,7 +12,7 @@ export const digestIntervalMs = 4 * 60 * 60 * 1000
 
 const summarizeDigestPrompt = (summaries: string) => `
 Given the following list of news items, summarize most important news into a single short paragraph. Include specific titles and link them to the url using markdown syntax.
-Links must wrap multiple words from the summary. Instead of putting links in parentheses, work them into the prose. Instead of linking the text "here" or the name of a source, link multiple words about the news item. Do not format with bold or italic. Use active tense.
+Links must wrap multiple words from the summary. Instead of putting links in parentheses, work them into the prose. Instead of linking the text "here" or the name of a source, link multiple words about the news item. Prefer linking more words where possible, ideally 5-6 words in the text of a link. Do not format with bold or italic. Use active tense.
 
 For example:
 

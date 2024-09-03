@@ -18,11 +18,7 @@ export function filterContent(
   const neg = [fluff, marketing]
   const bait = [ragebait, clickbait]
 
-  if (
-    neg.some((s) => s >= 3) ||
-    bait.some((s) => s >= 3.5) ||
-    (disturbing > 3 && world_impact < 3)
-  ) {
+  if (neg.some((s) => s >= 3) || (disturbing > 3 && world_impact < 3)) {
     return false
   }
 
@@ -32,6 +28,7 @@ export function filterContent(
   }
 
   return (
-    pos.some((s) => s >= 4) && !(category === 'sports' && world_impact <= 3)
+    bait.some((s) => s >= 3.5) ||
+    (pos.some((s) => s >= 4) && !(category === 'sports' && world_impact <= 3))
   )
 }

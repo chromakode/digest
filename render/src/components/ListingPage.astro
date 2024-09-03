@@ -48,7 +48,7 @@ const parsedRows = rows.map((content) => ({
 }))
 
 const [filteredRows, excludedRows] = partition(parsedRows, (row) => {
-  if (row.sourceId.startsWith('feed:') && row.classifyResult) {
+  if (row.classifyResult) {
     return filterContent(JSON.parse(row.classifyResult))
   }
 

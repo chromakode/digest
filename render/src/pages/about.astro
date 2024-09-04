@@ -34,10 +34,10 @@ import Layout from 'src/layouts/Layout.astro'
       font-size: 1.75rem;
 
       a {
-        color: var(--color-text);
+        color: var(--color-link);
+        text-decoration: none;
 
         &.logotype {
-          text-decoration: none;
           font-size: 1.1em;
         }
       }
@@ -50,6 +50,10 @@ import Layout from 'src/layouts/Layout.astro'
       width: 100%;
       opacity: 0.65;
       margin-top: 1.5rem;
+
+      a {
+        color: var(--color-text);
+      }
     }
 
     @media (max-width: 500px) {

@@ -28,10 +28,9 @@ export async function createDigestPrompt(content: ContentWithChildren[]) {
 
   const digestBase = (digestIndex - 1) * digestIntervalMs
 
-  // The latest digest should always cover at least a half interval of recent content.
   const digestStart = Math.min(
     digestBase,
-    dateFns.subMilliseconds(now, digestIntervalMs / 2).getTime(),
+    dateFns.subMilliseconds(now, digestIntervalMs).getTime(),
   )
 
   const digestURL = `digest://${digestIndex}`

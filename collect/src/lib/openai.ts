@@ -54,7 +54,7 @@ surprising: How surprising or unusual the content is.
 current_event: Whether the content describes and important and recent current event.
 newsworthy: Whether the content would be considered important news.
 world_impact: News story with a significant global impact to a large number of people. 5 would be an emergency that impacts multiple countries and millions of people. Lower score for local news specific to a single person, state, or country. Lower score for human interest stories.
-fluff: Rate whether the content is insubstantial or lacks importance.
+ffluff: Rate whether the content is insubstantial or lacks importance. Serious content with depth is not fluff. Code repositories are not fluff. Software documentation is not fluff.
 marketing: Whether the content is marketing a specific product or service.
 ragebait: Content intended to provoke drama, hate, or anger.
 clickbait: Deceptive or exaggerated title or claims.

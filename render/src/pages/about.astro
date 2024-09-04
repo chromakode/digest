@@ -1,0 +1,60 @@
+---
+import Layout from 'src/layouts/Layout.astro'
+---
+
+<Layout title="About Max's Digest">
+  <main>
+    <article>
+      <p>
+        <a href="/" class="logotype">Max's Digest</a> is an experimental personal
+        news gatherer by <a href="https://chromakode.com">Max Goodhart</a>.
+      </p>
+      <p>
+        Every 15 minutes, it fetches content from a selection of link
+        aggregators and feeds. Podcasts are transcribed and summarized too.
+      </p>
+      <p>
+        I try to filter out fluff, clickbait, ragebait, etc, which goes on the <a
+          href="/excluded">/excluded</a
+        > page.
+      </p>
+    </article>
+    <footer>
+      <a href="/" class="back">&laquo; back</a>
+      <a href="https://github.com/chromakode/digest">source code</a>
+    </footer>
+  </main>
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-size: 1.75rem;
+
+      a {
+        color: var(--color-text);
+
+        &.logotype {
+          text-decoration: none;
+          font-size: 1.1em;
+        }
+      }
+    }
+
+    footer {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      opacity: 0.65;
+    }
+
+    @media (max-width: 500px) {
+      main {
+        font-size: 1.5rem;
+      }
+    }
+  </style></Layout
+>

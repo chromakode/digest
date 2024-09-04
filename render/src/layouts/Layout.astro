@@ -1,0 +1,92 @@
+---
+import '@fontsource-variable/open-sans/wdth.css'
+import '@fontsource-variable/open-sans/wdth-italic.css'
+import openSansWoff2 from '@fontsource-variable/open-sans/files/open-sans-latin-wdth-normal.woff2?url'
+import { ViewTransitions } from 'astro:transitions'
+
+export interface Props {
+  title?: string
+}
+
+const { title } = Astro.props
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={openSansWoff2}
+      crossorigin="anonymous"
+    />
+    <link rel="manifest" href="/manifest.json" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="white"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#111010"
+    />
+    <title>{title ?? `Max's Digest`}</title>
+    <ViewTransitions />
+  </head>
+  <body>
+    <slot />
+    <style>
+      :root {
+        --source-width: 12rem;
+        --content-width: 42rem;
+        --color-bg: white;
+        --color-text: black;
+        --color-link: blue;
+        --accent: #f6f6f6;
+        --accent-border: #333;
+        --update-bg: #ffb64f;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #111010;
+          --color-text: #c5b9b9;
+          --color-link: #7c7caa;
+          --accent: #222;
+          --accent-border: #333;
+          --update-bg: #cd852d;
+        }
+      }
+
+      html {
+        scrollbar-gutter: stable;
+      }
+
+      body {
+        font-family: 'Open Sans Variable', sans-serif;
+        max-width: var(--content-width);
+        margin: 0 auto;
+        padding: 0 16px;
+        background: var(--color-bg);
+        color: var(--color-text);
+
+        h1,
+        .logotype {
+          font-stretch: 85%;
+          font-weight: 600;
+
+          a {
+            color: var(--color-text);
+            text-decoration: none;
+          }
+        }
+      }
+    </style>
+  </body>
+</html>

@@ -1,9 +1,4 @@
 ---
-import '@fontsource-variable/open-sans/wdth.css'
-import '@fontsource-variable/open-sans/wdth-italic.css'
-import openSansWoff2 from '@fontsource-variable/open-sans/files/open-sans-latin-wdth-normal.woff2?url'
-
-import { ViewTransitions } from 'astro:transitions'
 import ContentWithSearch from './ContentWithSearch'
 import Timestamp from './Timestamp'
 import { type Content } from './Article'
@@ -12,6 +7,7 @@ import { isAfter, parseISO, subHours } from 'date-fns'
 import { partition } from 'lodash-es'
 import AutoUpdateBanner from './AutoUpdateBanner'
 import { getLastUpdateTimestamp, openDB } from 'src/dbUtils'
+import Layout from 'src/layouts/Layout.astro'
 
 interface Props {
   showExcluded?: boolean
@@ -89,297 +85,254 @@ const lastUpdate = await getLastUpdateTimestamp(db)
 const { showExcluded = false } = Astro.props
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="robots" content="noindex, nofollow" />
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      href={openSansWoff2}
-      crossorigin="anonymous"
+<Layout>
+  <header>
+    <div class="title">
+      <h1>
+        <a href="/">Max's Digest</a>
+      </h1>
+      <a href="/about" class="info-button">?</a>
+    </div>
+    <div class="status">
+      <span class="updated">
+        updated
+        <Timestamp client:load dateTime={parseISO(lastUpdate + 'Z')} /></span
+      >
+      <a class="excluded-count" href="/excluded"
+        >{excludedRows.length} filtered</a
+      >
+    </div>
+  </header>
+  <main>
+    <ContentWithSearch
+      client:load
+      rows={showExcluded ? excludedRows : filteredRows.slice(0, 100)}
+      podcasts={showExcluded ? [] : newPodcasts}
+      showClassifyInfo={showExcluded}
     />
-    <link rel="manifest" href="/manifest.json" />
-    <meta
-      name="theme-color"
-      media="(prefers-color-scheme: light)"
-      content="white"
-    />
-    <meta
-      name="theme-color"
-      media="(prefers-color-scheme: dark)"
-      content="#111010"
-    />
-    <title>Max's Digest</title>
-    <ViewTransitions />
-  </head>
-  <body>
-    <header>
-      <h1><a href="/">Max's Digest</a></h1>
-      <div class="status">
-        <span class="updated">
-          updated
-          <Timestamp client:load dateTime={parseISO(lastUpdate + 'Z')} /></span
-        >
-        <a class="excluded-count" href="/excluded"
-          >{excludedRows.length} filtered</a
-        >
-      </div>
-    </header>
-    <main>
-      <ContentWithSearch
-        client:load
-        rows={showExcluded ? excludedRows : filteredRows.slice(0, 100)}
-        podcasts={showExcluded ? [] : newPodcasts}
-        showClassifyInfo={showExcluded}
-      />
-      <AutoUpdateBanner client:load />
-    </main>
-    <script src="../scripts/fastRenderTimestamps.ts"></script>
-    <style>
-      :root {
-        --source-width: 12rem;
-        --content-width: 42rem;
-        --color-bg: white;
-        --color-text: black;
-        --color-link: blue;
-        --accent: #f6f6f6;
-        --accent-border: #333;
-        --update-bg: #ffb64f;
-      }
+    <AutoUpdateBanner client:load />
+  </main>
+  <script src="../scripts/fastRenderTimestamps.ts"></script>
+  <style>
+    main {
+      article {
+        position: relative;
+        margin-bottom: 2rem;
 
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --color-bg: #111010;
-          --color-text: #c5b9b9;
-          --color-link: #7c7caa;
-          --accent: #222;
-          --accent-border: #333;
-          --update-bg: #cd852d;
+        h2,
+        .source {
+          line-height: 2rem;
         }
-      }
 
-      html {
-        scrollbar-gutter: stable;
-      }
+        h2 {
+          gap: 0.5em;
+          margin-top: 0;
+          margin-bottom: 0.5rem;
+        }
 
-      body {
-        font-family: 'Open Sans Variable', sans-serif;
-        max-width: var(--content-width);
-        margin: 0 auto;
-        padding: 0 16px;
-        background: var(--color-bg);
-        color: var(--color-text);
-      }
+        .info {
+          display: flex;
+          align-items: baseline;
+          gap: 0.25rem 0.5rem;
 
-      h1 {
-        font-stretch: 85%;
-        font-weight: 600;
-        margin-bottom: 1rem;
+          &.classify {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            flex-wrap: wrap;
+          }
+        }
+
+        .domain {
+          font-size: 0.85rem;
+          font-weight: normal;
+          margin-left: 1em;
+        }
+
+        time {
+          font-size: 0.85em;
+          opacity: 0.4;
+        }
+
+        .source,
+        .podcast-name {
+          font-weight: 600;
+          color: var(--color-text);
+          opacity: 0.6;
+        }
+
+        .source,
+        h2,
+        .podcast-name {
+          font-stretch: 85%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .podcast {
+          margin: 0.25em 0;
+        }
 
         a {
-          color: var(--color-text);
           text-decoration: none;
+          color: var(--color-link);
         }
-      }
 
-      main {
-        article {
-          position: relative;
-          margin-bottom: 2rem;
+        .summary {
+          margin: 0.5rem 0;
+        }
 
-          h2,
-          .source {
-            line-height: 2rem;
-          }
+        p {
+          margin: 0.5em 0;
+        }
 
-          h2 {
-            gap: 0.5em;
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-          }
+        ul {
+          padding-left: 1em;
+          margin-bottom: 0;
+        }
 
-          .info {
-            display: flex;
-            align-items: baseline;
-            gap: 0.25rem 0.5rem;
+        li {
+          margin: 0.35em 0;
+        }
 
-            &.classify {
-              font-size: 0.85rem;
-              opacity: 0.7;
-              flex-wrap: wrap;
-            }
-          }
-
-          .domain {
-            font-size: 0.85rem;
-            font-weight: normal;
-            margin-left: 1em;
-          }
-
-          time {
-            font-size: 0.85em;
-            opacity: 0.4;
-          }
-
-          .source,
-          .podcast-name {
-            font-weight: 600;
-            color: var(--color-text);
-            opacity: 0.6;
-          }
-
-          .source,
-          h2,
-          .podcast-name {
-            font-stretch: 85%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-
-          .podcast {
-            margin: 0.25em 0;
-          }
-
-          a {
-            text-decoration: none;
-            color: var(--color-link);
-          }
+        .child {
+          background: var(--accent);
+          padding: 0.25rem 1rem;
+          margin: 0.5rem 0;
 
           .summary {
-            margin: 0.5rem 0;
-          }
-
-          p {
-            margin: 0.5em 0;
+            margin: 0;
           }
 
           ul {
-            padding-left: 1em;
-            margin-bottom: 0;
+            margin: 0;
           }
+        }
 
-          li {
-            margin: 0.35em 0;
+        &.digest {
+          font-size: 1.1rem;
+        }
+      }
+    }
+
+    body {
+      h1,
+      .search input {
+        margin-bottom: 2rem;
+      }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        margin-top: 0.5rem;
+
+        .title {
+          display: flex;
+          flex-shrink: 0;
+          flex-direction: row;
+          align-items: center;
+          margin: 1rem 0;
+        }
+
+        h1 {
+          margin: 0;
+        }
+
+        .info-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+          font-weight: 600;
+          width: 0.1rem;
+          height: 0.1rem;
+          padding: 6px;
+          color: var(--color-text);
+          border: 1px solid var(--color-text);
+          border-radius: 4px;
+          margin-left: 6px;
+          margin-top: -8px;
+          text-decoration: none;
+          opacity: 0.75;
+        }
+
+        .status {
+          flex: 1;
+          display: flex;
+          gap: 0 1rem;
+          flex-wrap: wrap;
+          justify-content: space-between;
+        }
+
+        .updated,
+        .excluded-count {
+          font-size: 0.9em;
+          opacity: 0.7;
+        }
+
+        .excluded-count {
+          color: var(--color-text);
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
           }
+        }
+      }
 
-          .child {
-            background: var(--accent);
-            padding: 0.25rem 1rem;
-            margin: 0.5rem 0;
+      .search {
+        display: flex;
 
-            .summary {
-              margin: 0;
-            }
+        input {
+          display: flex;
+          flex: 1;
+          background: var(--accent);
+          color: var(--color-text);
+          border: 2px solid var(--accent-border);
+          border-radius: 4px;
+          box-sizing: content-box;
+          padding: 1rem;
+          font-size: 1.15rem;
+        }
+      }
 
-            ul {
-              margin: 0;
-            }
-          }
+      .update-banner {
+        position: fixed;
+        left: 50%;
+        bottom: 16px;
+        height: 3rem;
+        padding: 0 32px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--update-bg);
+        color: rgba(0, 0, 0, 0.75);
+        font-weight: 500;
+        border-radius: 8px;
+        text-decoration: none;
+      }
+    }
 
-          &.digest {
-            font-size: 1.1rem;
-          }
+    @media (max-width: 500px) {
+      header {
+        align-items: center;
+
+        .status {
+          flex-direction: column;
+          gap: 0;
+          align-items: flex-end;
+          margin-top: 0.75rem;
         }
       }
 
       body {
-        h1,
-        .search input {
-          margin-bottom: 2rem;
-        }
-
-        header {
-          display: flex;
-          align-items: baseline;
-          gap: 1rem;
-
-          h1 {
-            flex-shrink: 0;
-          }
-
-          .status {
-            flex: 1;
-            display: flex;
-            gap: 0 1rem;
-            flex-wrap: wrap;
-            justify-content: space-between;
-          }
-
-          .updated,
-          .excluded-count {
-            font-size: 0.9em;
-            opacity: 0.7;
-          }
-
-          .excluded-count {
-            color: var(--color-text);
-            text-decoration: none;
-
-            &:hover {
-              text-decoration: underline;
-            }
-          }
-        }
-
-        .search {
-          display: flex;
-
-          input {
-            display: flex;
-            flex: 1;
-            background: var(--accent);
-            color: var(--color-text);
-            border: 2px solid var(--accent-border);
-            border-radius: 4px;
-            box-sizing: content-box;
-            padding: 1rem;
-            font-size: 1.15rem;
-          }
-        }
-
         .update-banner {
-          position: fixed;
-          left: 50%;
-          bottom: 16px;
-          height: 3rem;
-          padding: 0 32px;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--update-bg);
-          color: rgba(0, 0, 0, 0.75);
-          font-weight: 500;
-          border-radius: 8px;
-          text-decoration: none;
+          bottom: 8px;
+          width: calc(100% - 16px);
+          padding: 0;
         }
       }
-
-      @media (max-width: 500px) {
-        header {
-          align-items: center;
-
-          .status {
-            flex-direction: column;
-            gap: 0;
-            align-items: flex-end;
-            margin-top: 0.75rem;
-          }
-        }
-
-        body {
-          .update-banner {
-            bottom: 8px;
-            width: calc(100% - 16px);
-            padding: 0;
-          }
-        }
-      }
-    </style>
-  </body>
-</html>
+    }
+  </style>
+</Layout>

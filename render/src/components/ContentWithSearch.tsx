@@ -61,7 +61,7 @@ export default function ContentWithSearch({
   const latestDigest = rows.find(({ sourceId }) => sourceId === 'digest')
   const isNotLatestOrLastDigest = (row: ContentWithChildren | SearchResult) => {
     if (latestDigest == null) {
-      return false
+      return true
     }
 
     if (row === latestDigest) {

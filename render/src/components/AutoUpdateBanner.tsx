@@ -12,6 +12,10 @@ export default function AutoUpdateBanner() {
   useEffect(() => {
     function checkCanUpdate() {
       async function check() {
+        if (document.visibilityState !== 'visible') {
+          return
+        }
+
         const resp = await fetch('/update.json')
         const updateData = await resp.json()
         const lastUpdateTime = updateData.lastUpdate
@@ -20,9 +24,7 @@ export default function AutoUpdateBanner() {
           document.querySelector<HTMLTimeElement>('.updated time')?.dateTime
 
         const updateAvailable =
-          document.visibilityState === 'visible' &&
-          lastUpdateTime != null &&
-          isAfter(lastUpdateTime, curUpdateTime)
+          lastUpdateTime != null && isAfter(lastUpdateTime, curUpdateTime)
 
         setCanUpdate(updateAvailable)
         if (updateAvailable && window.scrollY <= 100) {

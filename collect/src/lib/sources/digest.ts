@@ -7,8 +7,7 @@ import {
   SourceStore,
 } from '../../types.ts'
 import { llm } from '../openai.ts'
-
-export const digestIntervalMs = 4 * 60 * 60 * 1000
+import { digestIntervalMs } from '@shared/constants.ts'
 
 const summarizeDigestPrompt = (summaries: string) => `
 Given the following list of news items, summarize most important news into a single short paragraph. Include specific titles and link them to the url using markdown syntax.

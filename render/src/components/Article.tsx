@@ -8,6 +8,7 @@ import type { PluggableList } from 'node_modules/react-markdown/lib'
 export interface Content {
   id: string
   title: string
+  timestamp: string
   contentTimestamp: string
   contentSummary: string
   classifyResult?: Record<string, any>

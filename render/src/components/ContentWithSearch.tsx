@@ -1,9 +1,11 @@
 import MiniSearch, { type SearchResult } from 'minisearch'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { miniSearchConfig } from '@shared/searchConfig'
+import { digestIntervalMs } from '@shared/constants'
 import type { ChangeEvent } from 'react'
 import { throttle } from 'lodash-es'
 import Article, { type ContentWithChildren } from './Article'
+import { differenceInMilliseconds } from 'date-fns'
 
 export default function ContentWithSearch({
   rows,
@@ -57,6 +59,26 @@ export default function ContentWithSearch({
   const displayRows = results != null ? results.slice(0, 15) : rows
 
   const latestDigest = rows.find(({ sourceId }) => sourceId === 'digest')
+  const isNotLatestOrLastDigest = (row: ContentWithChildren | SearchResult) => {
+    if (latestDigest == null) {
+      return false
+    }
+
+    if (row === latestDigest) {
+      return false
+    }
+
+    // If the next digest is close to the latest, hide it (prevent redundant digests close to each other).
+    if (
+      row.sourceId === 'digest' &&
+      differenceInMilliseconds(latestDigest.timestamp, row.timestamp) <=
+        digestIntervalMs
+    ) {
+      return false
+    }
+
+    return true
+  }
 
   return (
     <>
@@ -85,11 +107,12 @@ export default function ContentWithSearch({
         </>
       )}
       {displayRows
-        .filter((r) => r !== latestDigest)
+        .filter(isNotLatestOrLastDigest)
         .map(
           ({
             id,
             title,
+            timestamp,
             contentTimestamp,
             contentSummary,
             classifyResult,
@@ -103,6 +126,7 @@ export default function ContentWithSearch({
               key={id}
               id={id}
               title={title}
+              timestamp={timestamp}
               contentTimestamp={contentTimestamp}
               contentSummary={contentSummary}
               classifyResult={classifyResult}

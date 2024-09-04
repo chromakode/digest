@@ -32,7 +32,8 @@ export function filterContent(
   }
 
   return (
-    bait.some((s) => s >= 3.5) ||
-    (pos.some((s) => s >= 4) && !(category === 'sports' && world_impact <= 3))
+    bait.some((s) => s < 3.5) &&
+    pos.some((s) => s >= 4) &&
+    !(category === 'sports' && world_impact <= 3)
   )
 }

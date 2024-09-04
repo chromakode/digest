@@ -46,7 +46,7 @@ ${content}
 
 export const classifyPrompt = (title: string, content: string) =>
   `
-First, check if the page returned an error or access denied instead of real content. If so, return isError=true.
+First, check if the page returned an error or access denied instead of real content. If so, return isError=true. If the article exists in a shortened form with a request to log in or subscribe (a paywall), return isError=false and isPaywall=true.
 
 Please classify the following article by scoring the following as a floating point number between 1 and 5:
 
@@ -78,6 +78,7 @@ ${content}
 
 export const ClassifySchema = z.object({
   isError: z.boolean(),
+  isPaywall: z.boolean(),
   scores: z.object({
     surprising: z.number(),
     current_event: z.number(),

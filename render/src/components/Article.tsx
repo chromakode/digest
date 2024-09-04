@@ -88,7 +88,7 @@ export default function Article(
 
   if (sourceId === 'digest') {
     return (
-      <article id={`content-${id}`}>
+      <article id={`content-${id}`} className="digest">
         <div className="content">
           <Markdown className="summary" rehypePlugins={rehypePlugins}>
             {contentSummary}

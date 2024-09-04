@@ -8,8 +8,9 @@ import {
 } from './lib/openai.ts'
 import { Store } from './lib/storage.ts'
 import { Content, ContentId, ContentWithSummary } from './types.ts'
-import { createDigestPrompt, digestIntervalMs } from './lib/sources/digest.ts'
+import { createDigestPrompt } from './lib/sources/digest.ts'
 import { filterContent } from '@shared/filterContent.ts'
+import { digestIntervalMs } from '@shared/constants.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 

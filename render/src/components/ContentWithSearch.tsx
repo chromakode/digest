@@ -4,7 +4,10 @@ import { miniSearchConfig } from '@shared/searchConfig'
 import { digestIntervalMs } from '@shared/constants'
 import type { ChangeEvent } from 'react'
 import { throttle } from 'lodash-es'
-import Article, { type ContentWithChildren } from './Article'
+import Article, {
+  type ContentWithChildren,
+  type SearchResultContent,
+} from './Article'
 import { differenceInMilliseconds } from 'date-fns'
 
 export default function ContentWithSearch({
@@ -17,7 +20,7 @@ export default function ContentWithSearch({
   showClassifyInfo?: boolean
 }) {
   const [miniSearch, setMiniSearch] = useState<MiniSearch | null>(null)
-  const [results, setResults] = useState<SearchResult[] | null>(null)
+  const [results, setResults] = useState<SearchResultContent[] | null>(null)
 
   useEffect(() => {
     async function loadSearch() {
@@ -31,7 +34,12 @@ export default function ContentWithSearch({
 
   const updateSearch = useCallback(
     (query: string) => {
-      setResults(miniSearch?.search(query, { fuzzy: true }) ?? [])
+      if (!miniSearch) {
+        return []
+      }
+
+      const results = miniSearch?.search(query, { fuzzy: true })
+      setResults(results as SearchResultContent[])
     },
     [miniSearch],
   )
@@ -106,39 +114,13 @@ export default function ContentWithSearch({
           )}
         </>
       )}
-      {displayRows
-        .filter(isNotLatestOrLastDigest)
-        .map(
-          ({
-            id,
-            title,
-            timestamp,
-            contentTimestamp,
-            contentSummary,
-            classifyResult,
-            url,
-            sourceId,
-            sourceShortName,
-            sourceURL,
-            childContent,
-          }) => (
-            <Article
-              key={id}
-              id={id}
-              title={title}
-              timestamp={timestamp}
-              contentTimestamp={contentTimestamp}
-              contentSummary={contentSummary}
-              classifyResult={classifyResult}
-              url={url}
-              sourceId={sourceId}
-              sourceShortName={sourceShortName}
-              sourceURL={sourceURL}
-              childContent={childContent}
-              showClassifyInfo={showClassifyInfo}
-            />
-          ),
-        )}
+      {displayRows.filter(isNotLatestOrLastDigest).map((props) => (
+        <Article
+          key={props.id}
+          {...props}
+          showClassifyInfo={showClassifyInfo}
+        />
+      ))}
     </>
   )
 }

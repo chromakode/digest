@@ -4,6 +4,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import rehypeExternalLinks from 'rehype-external-links'
 import { parseISO } from 'date-fns'
 import type { PluggableList } from 'node_modules/react-markdown/lib'
+import type { SearchResult } from 'minisearch'
 
 export interface Content {
   id: string
@@ -19,6 +20,8 @@ export interface Content {
 }
 
 export type ContentWithChildren = Content & { childContent?: Content[] }
+
+export type SearchResultContent = SearchResult & ContentWithChildren
 
 const rehypePlugins: PluggableList = [
   rehypeSanitize,

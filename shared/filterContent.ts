@@ -6,6 +6,7 @@ export function filterContent(
     return true
   }
 
+  const { category } = classifyResult ?? {}
   const {
     surprising,
     current_event,
@@ -16,7 +17,6 @@ export function filterContent(
     ragebait,
     clickbait,
     disturbing,
-    category,
   } = classifyResult?.scores ?? {}
   const pos = [surprising, current_event, newsworthy, world_impact]
   const neg = [fluff, marketing]
@@ -26,14 +26,14 @@ export function filterContent(
     return false
   }
 
+  if (category === 'sports' && world_impact <= 3) {
+    return false
+  }
+
   // Treat aggregators as having positive validation. In the future, could classify source types rather than matching by specific id, or let sources set custom filter.
   if (sourceId === 'hn' || sourceId === 'tildes') {
     return true
   }
 
-  return (
-    bait.some((s) => s < 3.5) &&
-    pos.some((s) => s >= 4) &&
-    !(category === 'sports' && world_impact <= 3)
-  )
+  return bait.some((s) => s < 3.5) && pos.some((s) => s >= 4)
 }

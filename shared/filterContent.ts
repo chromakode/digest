@@ -6,7 +6,7 @@ export function filterContent(
     return true
   }
 
-  const { category } = classifyResult ?? {}
+  const { isError, category } = classifyResult ?? {}
   const {
     surprising,
     current_event,
@@ -21,6 +21,10 @@ export function filterContent(
   const pos = [surprising, current_event, newsworthy, world_impact]
   const neg = [fluff, marketing]
   const bait = [ragebait, clickbait]
+
+  if (isError) {
+    return false
+  }
 
   if (neg.some((s) => s >= 3) || (disturbing > 3 && world_impact < 3)) {
     return false

@@ -16,6 +16,8 @@ export const summarizePrompt = (title: string, content: string) =>
   `
 Summarize the following content in a single sentence using 16 words or less. Also, extract 3 key bulleted points. Use active tense. Use markdown, but do not use bold or italic.
 
+If the content is an error page or access denied, explain the error in a single sentence instead of summarizing.
+
 Article title: ${title}
 
 Article content:
@@ -44,6 +46,8 @@ ${content}
 
 export const classifyPrompt = (title: string, content: string) =>
   `
+First, check if the page returned an error or access denied instead of real content. If so, return isError=true.
+
 Please classify the following article by scoring the following as a floating point number between 1 and 5:
 
 surprising: How surprising or unusual the content is.
@@ -73,6 +77,7 @@ ${content}
 `.trim()
 
 export const ClassifySchema = z.object({
+  isError: z.boolean(),
   scores: z.object({
     surprising: z.number(),
     current_event: z.number(),

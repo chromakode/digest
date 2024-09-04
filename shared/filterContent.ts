@@ -2,7 +2,7 @@ export function filterContent(
   sourceId: string,
   classifyResult: Record<string, any> | undefined,
 ) {
-  if (sourceId === 'digest') {
+  if (sourceId === 'digest' || sourceId.startsWith('podcast:')) {
     return true
   }
 

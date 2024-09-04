@@ -69,13 +69,30 @@ function ClassifyInfo({
   )
 }
 
+export function DigestArticle({
+  id,
+  contentSummary,
+  nextDigestId,
+}: ContentWithChildren & { nextDigestId: string | undefined }) {
+  const nextDigestLink =
+    nextDigestId != null ? ` [&raquo;](#content-${nextDigestId})` : ''
+  return (
+    <article id={`content-${id}`} className="digest">
+      <div className="content">
+        <Markdown className="summary" rehypePlugins={rehypePlugins}>
+          {contentSummary + nextDigestLink}
+        </Markdown>
+      </div>
+    </article>
+  )
+}
+
 export default function Article(
   props: ContentWithChildren & { showClassifyInfo?: boolean },
 ) {
   const {
     id,
     title,
-    sourceId,
     contentSummary,
     classifyResult,
     url: urlStr,
@@ -88,18 +105,6 @@ export default function Article(
     (c) => c.sourceId.startsWith('podcast:') || c.sourceURL === urlStr,
   )
   const domain = url.host.replace(/^www\./, '')
-
-  if (sourceId === 'digest') {
-    return (
-      <article id={`content-${id}`} className="digest">
-        <div className="content">
-          <Markdown className="summary" rehypePlugins={rehypePlugins}>
-            {contentSummary}
-          </Markdown>
-        </div>
-      </article>
-    )
-  }
 
   const shouldRewordTitle =
     classifyResult?.scores?.vague_title >= 3 ||

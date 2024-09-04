@@ -5,6 +5,7 @@ import { digestIntervalMs } from '@shared/constants'
 import type { ChangeEvent } from 'react'
 import { throttle } from 'lodash-es'
 import Article, {
+  DigestArticle,
   type ContentWithChildren,
   type SearchResultContent,
 } from './Article'
@@ -64,8 +65,6 @@ export default function ContentWithSearch({
     [throttleUpdateSearch],
   )
 
-  const displayRows = results != null ? results.slice(0, 15) : rows
-
   const latestDigest = rows.find(({ sourceId }) => sourceId === 'digest')
   const isNotLatestOrLastDigest = (row: ContentWithChildren | SearchResult) => {
     if (latestDigest == null) {
@@ -88,6 +87,14 @@ export default function ContentWithSearch({
     return true
   }
 
+  const displayRows = results != null ? results.slice(0, 15) : rows
+  const filteredDisplayRows = displayRows.filter(isNotLatestOrLastDigest)
+
+  const getNextDigestId = (digestId: string): string | undefined =>
+    filteredDisplayRows.find(
+      ({ id, sourceId }) => sourceId === 'digest' && id < digestId,
+    )?.id
+
   return (
     <>
       <div className="search">
@@ -99,7 +106,12 @@ export default function ContentWithSearch({
       </div>
       {!results && (
         <>
-          {latestDigest && <Article {...latestDigest} />}
+          {latestDigest && (
+            <DigestArticle
+              {...latestDigest}
+              nextDigestId={getNextDigestId(latestDigest.id)}
+            />
+          )}
           {podcasts.length > 0 && (
             <article className="new-podcasts">
               {podcasts.map(({ id, contentSummary, url, sourceShortName }) => (
@@ -114,13 +126,23 @@ export default function ContentWithSearch({
           )}
         </>
       )}
-      {displayRows.filter(isNotLatestOrLastDigest).map((props) => (
-        <Article
-          key={props.id}
-          {...props}
-          showClassifyInfo={showClassifyInfo}
-        />
-      ))}
+      {filteredDisplayRows
+        .filter(isNotLatestOrLastDigest)
+        .map((props) =>
+          props.sourceId === 'digest' ? (
+            <DigestArticle
+              key={props.id}
+              {...props}
+              nextDigestId={getNextDigestId(props.id)}
+            />
+          ) : (
+            <Article
+              key={props.id}
+              {...props}
+              showClassifyInfo={showClassifyInfo}
+            />
+          ),
+        )}
     </>
   )
 }

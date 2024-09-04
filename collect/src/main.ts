@@ -13,11 +13,12 @@ import {
 } from './lib/openai.ts'
 import { Content, Source, SourceStatus } from './types.ts'
 import { initMinio } from './lib/minio.ts'
-import { DigestSource, digestIntervalMs } from './lib/sources/digest.ts'
+import { DigestSource } from './lib/sources/digest.ts'
 import { PQueue } from '../deps.ts'
 import { fetchWithUA } from './lib/fetch.ts'
 import { podcastsFromOPML } from './lib/sources/podcast.ts'
 import { filterContent } from '@shared/filterContent.ts'
+import { digestIntervalMs } from '@shared/constants.ts'
 
 const OUTPUT_DIR = Deno.env.get('OUTPUT_DIR') ?? './output'
 const SITE_BUILD_HOOK = Deno.env.get('SITE_BUILD_HOOK')

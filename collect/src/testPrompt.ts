@@ -38,21 +38,26 @@ async function summarize(contentId?: ContentId) {
     { parentContentId: content.id },
   )[0]
 
-  const childContentBody = childContent.content.substring(0, 50000)
-  const childContentSummary = await llm(
-    summarizeChildPrompt(
-      childContent.title,
-      contentSummary ?? '',
-      childContentBody,
-      childContent.kind,
-    ),
-  )
+  let childContentSummary: string | null | undefined = ''
+  if (childContent != null) {
+    const childContentBody = childContent.content.substring(0, 50000)
+    childContentSummary = await llm(
+      summarizeChildPrompt(
+        childContent.title,
+        contentSummary ?? '',
+        childContentBody,
+        childContent.kind,
+      ),
+    )
+  }
 
   console.log(content.id, ':', content.title, '\n')
   console.log(contentSummary)
 
-  console.log('\nfrom', childContent.sourceId)
-  console.log(childContentSummary)
+  if (childContentSummary !== '' && childContentSummary != null) {
+    console.log('\nfrom', childContent.sourceId)
+    console.log(childContentSummary)
+  }
 }
 
 async function classify(contentId?: ContentId) {

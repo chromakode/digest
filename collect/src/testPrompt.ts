@@ -21,18 +21,20 @@ async function summarize(contentId?: ContentId) {
   const content =
     contentId != null
       ? store.db.queryEntries<Content>(
-          `SELECT contentId as id, title, content FROM content WHERE contentId = :contentId`,
+          `SELECT contentId as id, title, content, kind FROM content WHERE contentId = :contentId`,
           { contentId },
         )[0]
       : store.db.queryEntries<Content>(
-          `SELECT content.contentId as id, content.title, content.content FROM content LEFT JOIN content childContent ON (childContent.parentContentId = content.contentId) WHERE childContent.contentId IS NOT NULL ORDER BY RANDOM() LIMIT 1`,
+          `SELECT content.contentId as id, content.title, content.content, content.kind FROM content LEFT JOIN content childContent ON (childContent.parentContentId = content.contentId) WHERE childContent.contentId IS NOT NULL ORDER BY RANDOM() LIMIT 1`,
         )[0]
 
   const contentBody = content.content.substring(0, 50000)
-  const contentSummary = await llm(summarizePrompt(content.title, contentBody))
+  const contentSummary = await llm(
+    summarizePrompt(content.title, contentBody, content.kind),
+  )
 
   const childContent = store.db.queryEntries<Content>(
-    'SELECT title, content, sourceId FROM content WHERE parentContentId=:parentContentId LIMIT 1',
+    'SELECT title, content, kind, sourceId FROM content WHERE parentContentId=:parentContentId LIMIT 1',
     { parentContentId: content.id },
   )[0]
 
@@ -42,6 +44,7 @@ async function summarize(contentId?: ContentId) {
       childContent.title,
       contentSummary ?? '',
       childContentBody,
+      childContent.kind,
     ),
   )
 

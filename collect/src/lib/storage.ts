@@ -108,10 +108,10 @@ export class Store {
   addContent(sourceId: SourceId, data: ContentData): Content {
     return this.db.queryEntries<Content>(
       `
-      INSERT INTO content (sourceId, url, hash, title, author, contentTimestamp, content, sourceURL, parentContentId)
-      VALUES (:sourceId, :url, :hash, :title, :author, :contentTimestamp, :content, :sourceURL, :parentContentId)
-      ON CONFLICT(url) DO UPDATE SET title=:title, content=:content, hash=:hash, timestamp=CURRENT_TIMESTAMP
-      RETURNING contentId as id, url, hash, title, author, timestamp, contentTimestamp, content, sourceURL, parentContentId
+      INSERT INTO content (sourceId, url, hash, title, author, contentTimestamp, content, kind, sourceURL, parentContentId)
+      VALUES (:sourceId, :url, :hash, :title, :author, :contentTimestamp, :content, :kind, :sourceURL, :parentContentId)
+      ON CONFLICT(url) DO UPDATE SET title=:title, content=:content, kind=:kind, hash=:hash, timestamp=CURRENT_TIMESTAMP
+      RETURNING contentId as id, url, hash, title, author, timestamp, contentTimestamp, content, kind, sourceURL, parentContentId
       `,
       { sourceId, ...data },
     )[0]

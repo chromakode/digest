@@ -44,7 +44,7 @@ ${content}
 
 export const classifyPrompt = (title: string, content: string) =>
   `
-First, check if the page returned an error or access denied instead of real content. If so, return isError=true. Technical articles about errors or debugging should not be considered errors. If the article exists in a shortened form with a request to log in or subscribe (a paywall), return isError=false and isPaywall=true.
+First, check if the page returned an error or access denied instead of real content. If so, return isError=true. Technical articles about errors or debugging should not be considered errors. If the user must subscribe to view the content (a paywall), return isError=false and isPaywall=true.
 
 Please classify the following article by scoring the following as a floating point number between 1 and 5:
 

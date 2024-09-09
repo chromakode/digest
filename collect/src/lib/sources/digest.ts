@@ -36,7 +36,9 @@ export async function createDigestPrompt(content: ContentWithChildren[]) {
   const digestURL = `digest://${digestIndex}`
 
   const digestContent = content.filter(
-    ({ timestamp }) => new Date(timestamp + 'Z').getTime() > digestStart,
+    ({ timestamp, sourceId }) =>
+      new Date(timestamp + 'Z').getTime() > digestStart &&
+      sourceId !== DigestSource.id,
   )
 
   if (!digestContent.length) {

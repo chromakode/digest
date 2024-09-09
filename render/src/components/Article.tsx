@@ -60,6 +60,11 @@ function ClassifyInfo({
 
   return (
     <div className="info classify">
+      {classifyResult.category != null && (
+        <span>{classifyResult.category}</span>
+      )}
+      {classifyResult.isError && <span>error</span>}
+      {classifyResult.isPaywall && <span>paywall</span>}
       {Object.entries(scores ?? {}).map(([key, score]) => (
         <span>
           {key}: {score}

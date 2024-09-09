@@ -2,6 +2,7 @@ import { assert, dateFns, log, RSSParser, slug, xml } from '../../../deps.ts'
 import {
   Content,
   ContentData,
+  ContentKind,
   Source,
   SourceId,
   SourceStatus,
@@ -83,6 +84,7 @@ export class FeedSource implements Source {
       author: item.author,
       contentTimestamp: tryDate(item.isoDate),
       hash: item.guid,
+      kind: 'article',
     }
   }
 

@@ -1,5 +1,6 @@
 import { dateFns, encodeBase64 } from '../../../deps.ts'
 import {
+  ContentKind,
   ContentWithChildren,
   Source,
   SourceId,
@@ -91,6 +92,7 @@ export class DigestSource implements Source {
       hash,
       title: 'Digest',
       content: '',
+      kind: 'digest',
     })
 
     if (contentSummary) {

@@ -3,6 +3,12 @@ import { ClassifySchema } from './lib/openai.ts'
 
 export type SourceId = string & { __brand: 'SourceId' }
 export type ContentId = string & { __brand: 'ContentId' }
+export type ContentKind =
+  | 'article'
+  | 'comments'
+  | 'podcast'
+  | 'digest'
+  | 'error'
 
 export enum SourceStatus {
   ERROR,
@@ -17,6 +23,7 @@ export interface ContentData {
   timestamp?: string
   contentTimestamp?: string
   content: string
+  kind: ContentKind
   sourceURL?: string
   parentContentId?: ContentId
 }

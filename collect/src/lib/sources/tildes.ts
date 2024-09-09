@@ -1,5 +1,11 @@
 import { Element, log } from '../../../deps.ts'
-import { Source, SourceId, SourceStatus, SourceStore } from '../../types.ts'
+import {
+  ContentKind,
+  Source,
+  SourceId,
+  SourceStatus,
+  SourceStore,
+} from '../../types.ts'
 import { relativeURL, tryDate } from '../utils.ts'
 import { fetchDocument, fetchPage } from '../web.ts'
 
@@ -86,6 +92,7 @@ export class TildesSource implements Source {
             contentTimestamp,
             sourceURL,
             parentContentId,
+            kind: 'comments',
           })
         }
       }

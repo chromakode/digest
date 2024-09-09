@@ -70,6 +70,7 @@ export class HNSource implements Source {
             contentTimestamp,
             sourceURL,
             parentContentId,
+            kind: 'comments',
           })
         }
       }

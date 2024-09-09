@@ -6,7 +6,6 @@ import {
   ContentFreshQuery,
   ContentId,
   ContentWithChildren,
-  ContentWithSummary,
   SourceData,
   SourceFetchOptions,
   SourceId,
@@ -37,6 +36,7 @@ export class Store {
         author TEXT,
         contentTimestamp TEXT,
         content TEXT NOT NULL,
+        kind TEXT NOT NULL,
         hash TEXT,
         parentContentId INTEGER,
         FOREIGN KEY (parentContentId) REFERENCES content (contentId)

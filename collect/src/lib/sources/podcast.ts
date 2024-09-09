@@ -1,6 +1,6 @@
 import { log } from '../../../deps.ts'
 import { transcribeAudio } from '../runpod.ts'
-import { ContentData, SourceId, SourceStore } from '../../types.ts'
+import { ContentData, ContentKind, SourceId, SourceStore } from '../../types.ts'
 import { FeedSource, readOPML, RSSItem } from './feed.ts'
 
 export class PodcastSource extends FeedSource {
@@ -16,6 +16,7 @@ export class PodcastSource extends FeedSource {
     return {
       ...data,
       url: item.enclosure.url,
+      kind: 'podcast',
     }
   }
 

@@ -77,9 +77,14 @@ async function fetchSummary(content: Content) {
       })
       return
     }
-    prompt = summarizeChildPrompt(content.title, contentSummary, contentBody)
+    prompt = summarizeChildPrompt(
+      content.title,
+      contentSummary,
+      contentBody,
+      content.kind,
+    )
   } else {
-    prompt = summarizePrompt(content.title, contentBody)
+    prompt = summarizePrompt(content.title, contentBody, content.kind)
   }
 
   let contentSummary

@@ -44,6 +44,7 @@ export async function fetchPage(url: string): Promise<ContentData> {
       url,
       title: 'unknown',
       content: '',
+      kind: 'error',
     }
   }
 
@@ -62,5 +63,6 @@ export async function fetchPage(url: string): Promise<ContentData> {
     title: doc.title,
     author,
     content: text,
+    kind: 'article',
   }
 }

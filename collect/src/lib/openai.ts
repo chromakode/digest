@@ -1,5 +1,6 @@
 import { z, zodResponseFormat } from '../../deps.ts'
 import { OpenAI, PQueue, PRetry, ZodType, delay, log } from '../../deps.ts'
+import { ContentKind } from '../types.ts'
 import { requireEnv } from './config.ts'
 
 const OPENAI_API_KEY = requireEnv('OPENAI_API_KEY')
@@ -12,13 +13,17 @@ const openaiQueue = new PQueue({
   intervalCap: 10,
 })
 
-export const summarizePrompt = (title: string, content: string) =>
+export const summarizePrompt = (
+  title: string,
+  content: string,
+  kind: ContentKind,
+) =>
   `
-Summarize the following content in a single sentence using 16 words or less. Also, extract 3 key bulleted points. Use active tense. Use markdown, but do not use bold or italic.
+Summarize the following ${kind} in a single sentence using 16 words or less. Also, extract 3 key bulleted points. Use active tense. Use markdown, but do not use bold or italic.
 
-Article title: ${title}
+${kind} title: ${title}
 
-Article content:
+${kind} content:
 
 ${content}
 `.trim()
@@ -27,17 +32,18 @@ export const summarizeChildPrompt = (
   title: string,
   summary: string,
   content: string,
+  kind: ContentKind,
 ) =>
   `
-Summarize the following discussion in 2 bulleted points. Use active tense. Use markdown, but do not use bold or italic. Do not include information from the title or summary. Do not use the terms "participants", "users", or "community members" to refer to commenters: refer to them as "commenters".
+Summarize the following discussion about a ${kind} in 2 bulleted points. Use active tense. Use markdown, but do not use bold or italic. Do not include information from the title or summary. Do not use the terms "participants", "users", or "community members" to refer to commenters: refer to them as "commenters".
 
-Title: ${title}
+${kind} title: ${title}
 
-Summary:
+${kind} summary:
 
 ${summary}
 
-Discussion:
+Discussion about ${kind}:
 
 ${content}
 `.trim()

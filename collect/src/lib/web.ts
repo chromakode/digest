@@ -1,6 +1,6 @@
 import { DOMParser, PQueue, assert, log, parseMediaType } from '../../deps.ts'
 import { ContentData } from '../types.ts'
-import { fetchWithUA } from "./fetch.ts";
+import { fetchWithUA } from './fetch.ts'
 
 const defaultQueueOptions = {
   concurrency: 1,

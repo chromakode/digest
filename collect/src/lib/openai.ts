@@ -16,8 +16,6 @@ export const summarizePrompt = (title: string, content: string) =>
   `
 Summarize the following content in a single sentence using 16 words or less. Also, extract 3 key bulleted points. Use active tense. Use markdown, but do not use bold or italic.
 
-If the content is an error page or access denied, instead of summarizing, explain the error in a single sentence with no bullet points.
-
 Article title: ${title}
 
 Article content:

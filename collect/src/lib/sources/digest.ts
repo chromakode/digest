@@ -85,7 +85,9 @@ export class DigestSource implements Source {
       return SourceStatus.SUCCESS
     }
 
-    const contentSummary = await llm(summarizeDigestPrompt(prompt))
+    const contentSummary = await llm(summarizeDigestPrompt(prompt), {
+      model: 'gpt-4o',
+    })
 
     const { id } = await store.addContent({
       url: digestURL,

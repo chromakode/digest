@@ -135,7 +135,10 @@ function callOpenAI<T>(
   )
 }
 
-export async function llm(prompt: string) {
+export async function llm(
+  prompt: string,
+  { model = 'gpt-4o-mini' }: { model?: OpenAI.ChatModel } = {},
+) {
   const resp = await callOpenAI(
     (openai) => {
       return openai.chat.completions.create({
@@ -145,7 +148,7 @@ export async function llm(prompt: string) {
             content: prompt,
           },
         ],
-        model: 'gpt-4o-mini',
+        model,
       })
     },
     { length: prompt.length },

@@ -48,7 +48,10 @@ export function initMinio() {
     log.info('fetched digest.db from minio')
   }
 
-  async function uploadDBFile(dbPath: string) {
+  async function uploadDBFile(
+    dbPath: string,
+    { suffix = '' }: { suffix?: string } = {},
+  ) {
     log.info('uploading digest.db to minio')
 
     const gzPath = dbPath + '.gz'
@@ -63,7 +66,7 @@ export function initMinio() {
         .pipeThrough(new CompressionStream('gzip'))
         .pipeTo(gzFile.writable)
 
-      await minioClient.fPutObject(minioBucket, 'digest.db', gzPath, {
+      await minioClient.fPutObject(minioBucket, `digest${suffix}.db`, gzPath, {
         'Content-Type': 'application/x-sqlite3',
         'Content-Encoding': 'gzip',
       })
@@ -74,12 +77,21 @@ export function initMinio() {
     log.info('uploaded digest.db to minio')
   }
 
-  async function uploadDBSnapshot(store: Store, outputDir: string) {
+  async function uploadDBSnapshot(
+    store: Store,
+    {
+      outputDir,
+      suffix = '',
+    }: {
+      outputDir: string
+      suffix?: string
+    },
+  ) {
     const dbPath = await Deno.makeTempFile({ dir: outputDir, suffix: '.db' })
 
     try {
       await store.db.query('VACUUM INTO :dbPath', { dbPath })
-      await uploadDBFile(dbPath)
+      await uploadDBFile(dbPath, { suffix })
     } finally {
       await Deno.remove(dbPath)
     }

@@ -14,6 +14,8 @@ import {
 } from '../types.ts'
 import { ClassifySchema } from './openai.ts'
 
+const truncatePeriod: dateFns.Duration = { days: 1 }
+
 export class Store {
   db: SQLite
 
@@ -39,7 +41,7 @@ export class Store {
         kind TEXT NOT NULL,
         hash TEXT,
         parentContentId INTEGER,
-        FOREIGN KEY (parentContentId) REFERENCES content (contentId)
+        FOREIGN KEY (parentContentId) REFERENCES content (contentId) ON DELETE CASCADE
       )
     `)
 
@@ -57,7 +59,7 @@ export class Store {
         timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
         contentId INTEGER NOT NULL UNIQUE,
         contentSummary TEXT NOT NULL,
-        FOREIGN KEY (contentId) REFERENCES content (contentId)
+        FOREIGN KEY (contentId) REFERENCES content (contentId) ON DELETE CASCADE
       )
     `)
 
@@ -67,7 +69,7 @@ export class Store {
         timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
         contentId INTEGER NOT NULL UNIQUE,
         classifyResult TEXT NOT NULL,
-        FOREIGN KEY (contentId) REFERENCES content (contentId)
+        FOREIGN KEY (contentId) REFERENCES content (contentId) ON DELETE CASCADE
       )
     `)
 
@@ -88,6 +90,22 @@ export class Store {
         durationMs INTEGER NOT NULL,
         status INTEGER NOT NULL
       )
+    `)
+
+    this.db.execute(`
+      CREATE TABLE IF NOT EXISTS rotateLog (
+        rotateId INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+        minContentId INTEGER NOT NULL,
+        maxContentId INTEGER NOT NULL,
+        minContentTimestamp TEXT NOT NULL,
+        maxContentTimestamp TEXT NOT NULL
+      )
+    `)
+
+    // Timestamp db creation to base first rotation time off.
+    this.db.execute(`
+      INSERT OR IGNORE INTO rotateLog (rotateId, minContentId, maxContentId, minContentTimestamp, maxContentTimestamp) VALUES (0, 0, 0, 0, 0)
     `)
   }
 
@@ -287,5 +305,54 @@ export class Store {
       updateSource: (data: SourceData) => this.updateSource(sourceId, data),
       getFreshContentId: this.getFreshContentId.bind(this),
     }
+  }
+
+  shouldRotate(period: dateFns.Duration = truncatePeriod): boolean {
+    return (
+      this.db.query<[number]>(
+        `SELECT COUNT(1) FROM rotateLog WHERE unixepoch(timestamp) > unixepoch(:threshold)`,
+        {
+          threshold: dateFns.sub(Date.now(), period),
+        },
+      )[0][0] === 0
+    )
+  }
+
+  logRotate(): number {
+    return this.db.queryEntries<{ rotateId: number }>(`
+      INSERT INTO rotateLog (minContentId, maxContentId, minContentTimestamp, maxContentTimestamp)
+      SELECT MIN(contentId) as minContentId, MAX(contentId) as maxContentId, MIN(timestamp) as minContentTimestamp, MAX(timestamp) as maxContentTimestamp
+      FROM content
+      RETURNING rotateId
+    `)[0].rotateId
+  }
+
+  truncate(period: dateFns.Duration = truncatePeriod) {
+    // FIXME: DELETEs are really slow with foreign key checking on. Perhaps it'll be faster with ON DELETE CASCADE?
+    this.db.execute('PRAGMA foreign_keys = OFF')
+    this.db.transaction(() => {
+      const threshold = dateFns.sub(Date.now(), period)
+      this.db.query(
+        `DELETE FROM content WHERE unixepoch(timestamp) < unixepoch(:threshold)`,
+        { threshold },
+      )
+      this.db.query(
+        `DELETE FROM summary WHERE unixepoch(timestamp) < unixepoch(:threshold)`,
+        { threshold },
+      )
+      this.db.query(
+        `DELETE FROM classify WHERE unixepoch(timestamp) < unixepoch(:threshold)`,
+        { threshold },
+      )
+      this.db.query(
+        `DELETE FROM log WHERE unixepoch(timestamp) < unixepoch(:threshold)`,
+        { threshold },
+      )
+      this.db.query(
+        `DELETE FROM updateLog WHERE unixepoch(timestamp) < unixepoch(:threshold)`,
+        { threshold },
+      )
+    })
+    this.db.execute('PRAGMA foreign_keys = ON')
   }
 }

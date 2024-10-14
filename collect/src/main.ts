@@ -54,8 +54,20 @@ function queueWrite() {
   }
 
   writeQueue.add(async () => {
-    await uploadDBSnapshot(store, OUTPUT_DIR)
+    await uploadDBSnapshot(store, { outputDir: OUTPUT_DIR })
   })
+}
+
+async function maybeRotateDb() {
+  if (store.shouldRotate()) {
+    const newRotateId = store.logRotate()
+
+    log.info('rotating db', newRotateId)
+    await uploadDBSnapshot(store, {
+      outputDir: OUTPUT_DIR,
+      suffix: `-${newRotateId}`,
+    })
+  }
 }
 
 async function classifyAndSummarize(content: Content) {
@@ -188,6 +200,8 @@ async function triggerSiteBuild() {
   }
 }
 
+await maybeRotateDb()
+
 await fetchAll()
 await summarizeAllMissing()
 await fetchSource(
@@ -204,6 +218,10 @@ const durationMs = performance.now() - startTime
 store.addSourceResult('system', { status: SourceStatus.SUCCESS, durationMs })
 
 await writeQueue.onIdle()
+
+log.info('truncating db...')
+store.truncate()
+
 store.close()
 
 await uploadDBFile(dbPath)

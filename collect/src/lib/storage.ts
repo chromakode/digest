@@ -14,7 +14,7 @@ import {
 } from '../types.ts'
 import { ClassifySchema } from './openai.ts'
 
-const truncatePeriod: dateFns.Duration = { days: 1 }
+const truncatePeriod: dateFns.Duration = { days: 7 }
 
 export class Store {
   db: SQLite
